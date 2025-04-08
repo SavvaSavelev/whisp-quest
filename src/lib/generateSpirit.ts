@@ -6,6 +6,8 @@ export async function generateSpirit(text: string): Promise<Spirit> {
   const mood = mapLabelToMood(label, all);
   const color = moodToColor(mood);
   const essence = moodToEssence(mood);
+  const rarity = determineRarity(mood);
+
 
   return {
     id: crypto.randomUUID(),
@@ -14,6 +16,9 @@ export async function generateSpirit(text: string): Promise<Spirit> {
     color,
     essence,
     createdAt: Date.now(),
+    x: Math.random() * 90 + 5, // не ближе к краю
+    y: Math.random() * 90 + 5,
+    rarity
   };
 }
 
@@ -28,7 +33,9 @@ function mapLabelToMood(label: string, allLabels: string[]): SpiritMood {
     )
   );
 
-  const mood = ["joy", "love", "optimism", "admiration", "amusement"].includes(clean)
+  const mood = ["joy", "love", "optimism", "admiration", "amusement"].includes(
+    clean
+  )
     ? "радостный"
     : clean.includes("sadness")
     ? "печальный"
@@ -112,4 +119,13 @@ function generateNameFromMood(mood: SpiritMood): string {
     меланхоличный: "Осэо",
   };
   return base[mood] + "-" + Math.floor(Math.random() * 1000);
+}
+
+function determineRarity(mood: SpiritMood): Spirit["rarity"] {
+  const cursedMoods: SpiritMood[] = ["злой", "испуганный", "печальный"];
+  const isCursed = cursedMoods.includes(mood);
+
+  if (isCursed && Math.random() < 0.3) return "проклятый";
+  if (Math.random() < 0.1) return "сияющий";
+  return "обычный";
 }

@@ -17,3 +17,19 @@
     animation: spiritBirth 0.8s ease-out;
   }
   
+  @keyframes spirit-float {
+    0% {
+      transform: translate(-50%, -50%) translateY(0px);
+    }
+    50% {
+      transform: translate(-50%, -50%) translateY(-8px);
+    }
+    100% {
+      transform: translate(-50%, -50%) translateY(0px);
+    }
+  }
+  
+  .animate-spirit-float {
+    animation: spirit-float 4s ease-in-out infinite;
+  }
+  
