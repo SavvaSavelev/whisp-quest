@@ -4,7 +4,6 @@ import { useRef, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-// 💫 Космическое ядро
 export const GalaxyCore = () => {
   const ref = useRef<THREE.Points>(null!);
 
@@ -16,7 +15,7 @@ export const GalaxyCore = () => {
     for (let i = 0; i < count; i++) {
       const radius = Math.random() * 1.5;
       const angle = Math.random() * Math.PI * 2;
-      const spiral = (i % 3) * 0.5;
+      const spiral = (i % 4) * 0.4;
 
       const x = Math.cos(angle + spiral) * radius + (Math.random() - 0.5) * 0.2;
       const y = (Math.random() - 0.5) * 1.5;
@@ -25,7 +24,7 @@ export const GalaxyCore = () => {
       positions.set([x, y, z], i * 3);
 
       const color = new THREE.Color();
-      color.setHSL(0.6 + Math.random() * 0.4, 1, 0.6 + Math.random() * 0.3);
+      color.setHSL(0.6 + Math.random() * 0.4, 1, 0.65 + Math.random() * 0.2);
       colors.set([color.r, color.g, color.b], i * 3);
     }
 
@@ -34,7 +33,7 @@ export const GalaxyCore = () => {
 
   useFrame(() => {
     if (ref.current) {
-      ref.current.rotation.y += 0.0006;
+      ref.current.rotation.y += 0.0008;
       ref.current.rotation.x += 0.0003;
     }
   });
@@ -52,12 +51,12 @@ export const GalaxyCore = () => {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.045}
+        size={0.05}
         vertexColors
-        transparent
-        opacity={0.95}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
+        transparent
+        opacity={0.9}
       />
     </points>
   );
