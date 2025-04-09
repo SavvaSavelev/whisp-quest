@@ -1,5 +1,15 @@
 @import 'tailwindcss';
 
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: black;
+}
+
+
 @keyframes spiritBirth {
     0% {
       opacity: 0;

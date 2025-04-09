@@ -8,6 +8,7 @@ import { GalaxyCore } from "./GalaxyCore";
 import { useSpiritStore } from "../../store/spiritStore";
 import { SpiritOrb } from "./SpiritOrb";
 
+
 export const WhispPlanet = () => {
   const spirits = useSpiritStore((state) => state.spirits);
 
