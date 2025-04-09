@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { generateSpirit } from "../lib/generateSpirit";
 import { useSpiritStore } from "../store/spiritStore";
-import { WhispPlanet } from "../components/WhispPlanet";
+import { WhispPlanet } from "../components/WhispPlanet/WhispPlanet";
+
 
 export const DiaryPage = () => {
   const [text, setText] = useState("");

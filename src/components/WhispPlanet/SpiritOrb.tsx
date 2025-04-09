@@ -1,4 +1,4 @@
-import { Spirit } from "../entities/types";
+import { Spirit } from "../../entities/types";
 
 type Props = {
   spirit: Spirit;
