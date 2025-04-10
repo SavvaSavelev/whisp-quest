@@ -1,24 +1,18 @@
-export type SpiritMood =
-  | "радостный"
-  | "печальный"
-  | "вдохновлённый"
-  | "злой"
-  | "сонный"
-  | "испуганный"
-  | "спокойный"
-  | "игривый"
-  | "меланхоличный";
-
-export type SpiritRarity = "обычный" | "сияющий" | "проклятый";
+export type SpiritEmotion =
+  | "happy"
+  | "sleepy"
+  | "surprised"
+  | "joy"
+  | "sad"
+  | "angry"
+  | "inspired"
+  | "acceptance";
 
 export type Spirit = {
   id: string;
-  name: string;
-  mood: SpiritMood;
+  position: [number, number, number] | { x: number; y: number; z: number };
   color: string;
-  essence: string;
-  createdAt: number;
-  x: number;
-  y: number;
-  rarity?: SpiritRarity;
+  emotion?: SpiritEmotion;
+  message?: string;
+  createdAt?: string;
 };

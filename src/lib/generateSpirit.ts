@@ -1,13 +1,27 @@
 import { Spirit, SpiritMood } from "../entities/types";
 import { analyzeSentiment } from "./sentimentAnalyzer";
 
+// Генерация позиции внутри сферы
+function randomPositionInSphere(radius = 2.2): [number, number, number] {
+  const u = Math.random();
+  const v = Math.random();
+  const theta = 2 * Math.PI * u;
+  const phi = Math.acos(2 * v - 1);
+  const r = radius * Math.cbrt(Math.random());
+
+  const x = r * Math.sin(phi) * Math.cos(theta);
+  const y = r * Math.sin(phi) * Math.sin(theta);
+  const z = r * Math.cos(phi);
+
+  return [x, y, z];
+}
+
 export async function generateSpirit(text: string): Promise<Spirit> {
   const { label, all } = await analyzeSentiment(text);
   const mood = mapLabelToMood(label, all);
   const color = moodToColor(mood);
   const essence = moodToEssence(mood);
   const rarity = determineRarity(mood);
-
 
   return {
     id: crypto.randomUUID(),
@@ -16,9 +30,8 @@ export async function generateSpirit(text: string): Promise<Spirit> {
     color,
     essence,
     createdAt: Date.now(),
-    x: Math.random() * 90 + 5, // не ближе к краю
-    y: Math.random() * 90 + 5,
-    rarity
+    position: randomPositionInSphere(),
+    rarity,
   };
 }
 
@@ -26,16 +39,13 @@ export async function generateSpirit(text: string): Promise<Spirit> {
 function mapLabelToMood(label: string, allLabels: string[]): SpiritMood {
   const clean = (label || "").toLowerCase();
 
-  // если первая эмоция нераспознаваема — пробуем взять следующую подходящую
   const fallback = allLabels.find((l) =>
     ["joy", "love", "sadness", "anger", "fear", "surprise", "disgust"].includes(
       l.toLowerCase()
     )
   );
 
-  const mood = ["joy", "love", "optimism", "admiration", "amusement"].includes(
-    clean
-  )
+  const mood = ["joy", "love", "optimism", "admiration", "amusement"].includes(clean)
     ? "радостный"
     : clean.includes("sadness")
     ? "печальный"

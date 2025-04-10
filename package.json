@@ -14,6 +14,8 @@
     "@react-three/drei": "^10.0.6",
     "@react-three/fiber": "^9.1.2",
     "@tippyjs/react": "^4.2.6",
+    "drei": "^2.2.21",
+    "glslify": "^7.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.0",

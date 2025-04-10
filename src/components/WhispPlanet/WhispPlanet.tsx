@@ -1,13 +1,10 @@
-// 📁 src/components/WhispPlanet/WhispPlanet.tsx
-
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { SpaceOutside } from "./SpaceOutside";
 import { CosmosInside } from "./CosmosInside";
 import { GalaxyCore } from "./GalaxyCore";
 import { useSpiritStore } from "../../store/spiritStore";
-import { SpiritOrb } from "./SpiritOrb";
-
+import { TexturedSpiritSprite } from "./TexturedSpiritSprite";
 
 export const WhispPlanet = () => {
   const spirits = useSpiritStore((state) => state.spirits);
@@ -15,17 +12,26 @@ export const WhispPlanet = () => {
   return (
     <div className="w-screen h-screen bg-black">
       <Canvas camera={{ position: [0, 0, 22], fov: 45 }}>
-        {/* 🌌 Внешний космос */}
+        {/* 🌌 Космос и планета */}
         <SpaceOutside />
-
-        {/* 💫 Галактика и туманность внутри */}
-        <GalaxyCore /> {/* Увеличена */}
+        <GalaxyCore />
         <CosmosInside />
 
         {/* 👻 Духи */}
-        {spirits.map((spirit, index) => (
-          <SpiritOrb key={spirit.id} spirit={spirit} index={index} />
-        ))}
+        {spirits.map((spirit) => {
+          const pos = Array.isArray(spirit.position)
+            ? spirit.position
+            : [0, 0, 0];
+
+          return (
+            <TexturedSpiritSprite
+              key={spirit.id}
+              position={pos}
+              mood={spirit.mood}
+              size={0.5}
+            />
+          );
+        })}
 
         {/* 💡 Свет и камера */}
         <ambientLight intensity={0.6} />
