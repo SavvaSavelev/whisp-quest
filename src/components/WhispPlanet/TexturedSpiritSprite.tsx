@@ -1,52 +1,27 @@
-import { useRef } from "react";
-import { useFrame } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
+import { useRef, useState } from "react";
 import { Sprite } from "three";
-
-type SpiritMood =
-  | "радостный"
-  | "печальный"
-  | "злой"
-  | "вдохновлённый"
-  | "спокойный"
-  | "игривый"
-  | "испуганный"
-  | "сонный"
-  | "меланхоличный";
+import { useTexture } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import { Spirit } from "../../entities/types";
+import { moodToTexture } from "../../lib/generateSpirit";
+import { useSpiritModalStore } from "../../store/useSpiritModalStore";
 
 type Props = {
-  mood: SpiritMood;
-  position: [number, number, number];
+  spirit: Spirit;
   size?: number;
 };
 
-export const TexturedSpiritSprite = ({
-  mood,
-  position,
-  size = 0.5,
-}: Props) => {
+export const TexturedSpiritSprite = ({ spirit, size = 1.0 }: Props) => {
   const ref = useRef<Sprite>(null);
-
-  const moodToTexture: Record<SpiritMood, string> = {
-    радостный: "/textures/face-happy.png",
-    печальный: "/textures/face-sad.png",
-    злой: "/textures/face-angry.png",
-    вдохновлённый: "/textures/face-inspired.png",
-    спокойный: "/textures/face-acceptance.png",
-    игривый: "/textures/face-happy.png",
-    испуганный: "/textures/face-sad.png",
-    сонный: "/textures/face-acceptance.png",
-    меланхоличный: "/textures/face-sad.png",
-  };
-
-  const texture = useTexture(moodToTexture[mood]);
+  const texture = useTexture(moodToTexture[spirit.mood]);
+  const [hovered, setHovered] = useState(false);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     if (ref.current) {
-      const floatY = Math.sin(t * 2) * 0.08;
-      const scale = 1 + Math.sin(t * 4) * 0.05;
-      ref.current.position.y = position[1] + floatY;
+      const floatY = Math.sin(t * 2) * 0.1;
+      const scale = 1 + Math.sin(t * 4) * 0.05 + (hovered ? 0.1 : 0);
+      ref.current.position.y = spirit.position[1] + floatY;
       ref.current.scale.set(size * scale, size * scale, 1);
     }
   });
@@ -54,10 +29,22 @@ export const TexturedSpiritSprite = ({
   return (
     <sprite
       ref={ref}
-      position={position}
+      position={spirit.position}
       scale={[size, size, 1]}
+      onClick={(e) => {
+        e.stopPropagation();
+        useSpiritModalStore.getState().openModal(spirit); // ✅ передаём весь дух
+      }}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+      }}
+      onPointerOut={(e) => {
+        e.stopPropagation();
+        setHovered(false);
+      }}
     >
-      <spriteMaterial map={texture} transparent />
+      <spriteMaterial map={texture} transparent depthWrite={false} />
     </sprite>
   );
 };
