@@ -1,37 +1,35 @@
 import { Spirit, SpiritMood } from "../entities/types";
 import { analyzeSentiment } from "./analyzeSentiment";
 import { useSpiritArchiveStore } from "../store/useSpiritArchiveStore";
-
-function randomPositionInSphere(radius = 2.2): [number, number, number] {
-  const u = Math.random();
-  const v = Math.random();
-  const theta = 2 * Math.PI * u;
-  const phi = Math.acos(2 * v - 1);
-  const r = radius * Math.cbrt(Math.random());
-  return [
-    r * Math.sin(phi) * Math.cos(theta),
-    r * Math.sin(phi) * Math.sin(theta),
-    r * Math.cos(phi),
-  ];
-}
+import { randomPositionInSphere } from "./randomPositionInSphere";
 
 export async function generateSpirit(text: string): Promise<Spirit> {
   const { mood, color, rarity, essence, dialogue } = await analyzeSentiment(text);
 
+  const densityMap = {
+    обычный: 0.7,
+    редкий: 1,
+    легендарный: 2.5,
+  };
+
+  const safeMood = (mood: string): SpiritMood =>
+    moodToTexture[mood as SpiritMood] ? (mood as SpiritMood) : "спокойный";
+
   const spirit: Spirit = {
     id: crypto.randomUUID(),
     name: "Безымянный дух",
-    mood: mood as SpiritMood,
+    mood: safeMood(mood),
     color,
     rarity,
     essence,
     dialogue,
+    position: randomPositionInSphere(2.4, densityMap[rarity] ?? 1),
     originText: text,
     birthDate: new Date().toISOString(),
-    position: randomPositionInSphere(),
   };
 
   useSpiritArchiveStore.getState().addSpirit(spirit, dialogue ? [dialogue] : []);
+
   return spirit;
 }
 

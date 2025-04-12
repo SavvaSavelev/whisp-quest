@@ -1,30 +1,23 @@
-import { useEffect } from "react";
 import { DiaryPage } from "./pages/DiaryPage";
 import { WhispPlanet } from "./components/WhispPlanet/WhispPlanet";
 import { SpiritDialogueModal } from "./components/UI/SpiritDialogueModal";
 import { GhibliBackground } from "./components/UI/GhibliBackground";
 import { ParallaxBackground } from "./components/UI/ParallaxBackground";
-import { preloadAllSpiritTextures } from "./lib/preloadAllSpiritTextures";
 
 function App() {
-  // ✅ Предзагрузка всех PNG лиц духов при старте
-  useEffect(() => {
-    preloadAllSpiritTextures();
-  }, []);
-
   return (
     <div className="relative w-screen h-screen overflow-hidden">
-      {/* 🍃 Волшебный Ghibli-фон */}
+      {/* 🍃 Фон */}
       <GhibliBackground />
-
-      {/* 🌌 Визуальная сцена — планета, ядро, космос */}
       <ParallaxBackground />
+
+      {/* 🌌 Планета и духи */}
       <WhispPlanet />
 
-      {/* 🗣️ Диалоговое окно духа */}
+      {/* 🗣️ Диалог */}
       <SpiritDialogueModal />
 
-      {/* 🧠 Интерфейс: поле ввода, кнопка, карточки духов */}
+      {/* 📜 Интерфейс дневника */}
       <div className="absolute inset-0 z-10 pointer-events-none">
         <DiaryPage />
       </div>

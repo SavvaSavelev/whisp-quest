@@ -17,45 +17,50 @@ export const WhispPlanet = () => {
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
   const prevCountRef = useRef<number>(spirits.length);
 
-  // 💾 Подгружаем из архива при старте
+  // 💾 Загружаем архив при старте
   useEffect(() => {
-    if (spirits.length === 0) {
+    if (spirits.length === 0 && archiveSpirits.length > 0) {
       setSpirits(archiveSpirits);
     }
   }, []);
 
-  // 🎇 Следим за добавлением нового духа
+  // 🎇 Отслеживаем нового духа
   useEffect(() => {
     if (spirits.length > prevCountRef.current) {
       const newest = spirits[spirits.length - 1];
       setLastAddedId(newest.id);
-
-      setTimeout(() => setLastAddedId(null), 600); // сброс вспышки
+      setTimeout(() => setLastAddedId(null), 1000);
     }
     prevCountRef.current = spirits.length;
   }, [spirits]);
 
+  const flashSpirit = lastAddedId
+    ? spirits.find((s) => s.id === lastAddedId)
+    : null;
+
   return (
     <div className="w-screen h-screen bg-black">
       <Canvas camera={{ position: [0, 0, 22], fov: 45 }}>
-        {/* Космическая сцена */}
         <SpaceOutside />
         <GalaxyCore />
         <CosmosInside />
 
-        {/* Духи + Вспышка если новый */}
         {spirits.map((spirit) => (
-          <group key={spirit.id}>
-            <TexturedSpiritSprite
-              spirit={spirit}
-              position={spirit.position}
-              size={1.4}
-            />
-            {lastAddedId === spirit.id && (
-              <SpawnFlash position={spirit.position} />
-            )}
-          </group>
+          <TexturedSpiritSprite
+            key={spirit.id}
+            spirit={spirit}
+            position={spirit.position}
+            size={1.4}
+          />
         ))}
+
+        {flashSpirit && (
+          <SpawnFlash
+            key={flashSpirit.id + "-flash"}
+            position={flashSpirit.position}
+            rarity={flashSpirit.rarity}
+          />
+        )}
 
         <ambientLight intensity={0.6} />
         <pointLight position={[10, 10, 10]} intensity={1.5} />
