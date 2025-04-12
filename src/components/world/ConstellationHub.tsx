@@ -7,14 +7,14 @@ const spiritTypes = [
   "спокойный", "сонный", "игривый", "испуганный"
 ];
 
-// Генерация случайных, но равномерно распределённых координат
+// Равномерный, но более близкий разброс
 const constellationPositions: Record<string, [number, number, number]> = {};
 spiritTypes.forEach((type, i) => {
   const angle = (i / spiritTypes.length) * Math.PI * 2;
   constellationPositions[type] = [
-    Math.cos(angle) * 40 + (Math.random() - 0.5) * 10,
-    Math.sin(angle) * 30 + (Math.random() - 0.5) * 10,
-    (Math.random() - 0.5) * 60,
+    Math.cos(angle) * 20 + (Math.random() - 0.5) * 6,
+    Math.sin(angle) * 15 + (Math.random() - 0.5) * 6,
+    (Math.random() - 0.5) * 30,
   ];
 });
 

@@ -1,7 +1,6 @@
 import { Spirit, SpiritMood } from "../entities/types";
 import { analyzeSentiment } from "./analyzeSentiment";
 import { useSpiritArchiveStore } from "../store/useSpiritArchiveStore";
-import { useSpiritStore } from "../store/spiritStore";
 
 function randomPositionInSphere(radius = 2.2): [number, number, number] {
   const u = Math.random();
@@ -27,13 +26,12 @@ export async function generateSpirit(text: string): Promise<Spirit> {
     rarity,
     essence,
     dialogue,
+    originText: text,
+    birthDate: new Date().toISOString(),
     position: randomPositionInSphere(),
   };
 
-  // 💾 Сохраняем в хранилища
-  useSpiritStore.getState().addSpirit(spirit); // дух на планете
-  useSpiritArchiveStore.getState().addSpirit(spirit, dialogue ? [dialogue] : []); // дух в архив
-
+  useSpiritArchiveStore.getState().addSpirit(spirit, dialogue ? [dialogue] : []);
   return spirit;
 }
 

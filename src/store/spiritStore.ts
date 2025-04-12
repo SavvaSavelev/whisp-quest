@@ -1,23 +1,23 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import { Spirit } from "../entities/types";
 
-type SpiritStore = {
+interface SpiritStore {
   spirits: Spirit[];
+  setSpirits: (spirits: Spirit[]) => void;
   addSpirit: (spirit: Spirit) => void;
-  clearSpirits: () => void;
-};
+  removeSpirit: (id: string) => void;
+}
 
-export const useSpiritStore = create<SpiritStore>()(
-  persist(
-    (set) => ({
-      spirits: [],
-      addSpirit: (spirit) =>
-        set((state) => ({ spirits: [...state.spirits, spirit] })),
-      clearSpirits: () => set({ spirits: [] }),
-    }),
-    {
-      name: "whisp-spirits", // ключ в localStorage
-    }
-  )
-);
+export const useSpiritStore = create<SpiritStore>((set) => ({
+  spirits: [],
+
+  setSpirits: (spirits) => set({ spirits }),
+
+  addSpirit: (spirit) =>
+    set((state) => ({ spirits: [...state.spirits, spirit] })),
+
+  removeSpirit: (id) =>
+    set((state) => ({
+      spirits: state.spirits.filter((s) => s.id !== id),
+    })),
+}));

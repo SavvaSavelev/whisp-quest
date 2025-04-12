@@ -9,6 +9,7 @@ interface ArchiveStore {
   spirits: SpiritWithChat[];
   addSpirit: (spirit: Spirit, history?: string[]) => void;
   getSpiritById: (id: string) => SpiritWithChat | undefined;
+  removeSpirit: (id: string) => void;
   clearArchive: () => void;
 }
 
@@ -38,6 +39,12 @@ export const useSpiritArchiveStore = create<ArchiveStore>((set, get) => ({
   },
 
   getSpiritById: (id) => get().spirits.find((s) => s.id === id),
+
+  removeSpirit: (id) => {
+    const updated = get().spirits.filter((s) => s.id !== id);
+    saveToStorage(updated);
+    set({ spirits: updated });
+  },
 
   clearArchive: () => {
     localStorage.removeItem(LOCAL_KEY);
