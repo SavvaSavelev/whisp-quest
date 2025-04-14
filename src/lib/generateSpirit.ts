@@ -17,14 +17,14 @@ export const moodToTexture: Record<string, string> = {
 };
 
 /**
- * Безопасно возвращает текстуру по настроению
+ * Возвращает путь к текстуре по настроению
  */
 export function getMoodTexture(mood: string): string {
   return moodToTexture[mood] || FACE_DEFAULT;
 }
 
 /**
- * Генерирует нового духа из пользовательского текста
+ * Генерирует нового духа из текста пользователя
  */
 export const generateSpirit = async (text: string): Promise<Spirit> => {
   const response = await fetch("http://localhost:4000/analyze", {
@@ -36,20 +36,22 @@ export const generateSpirit = async (text: string): Promise<Spirit> => {
   const spiritData = await response.json();
 
   const spirit: Spirit = {
-    id: crypto.randomUUID(),
+    id: crypto.randomUUID(), // ✅ уникальный
     name: spiritData.essence || "Безымянный дух",
     mood: spiritData.mood as SpiritMood,
-    color: spiritData.color,
-    rarity: spiritData.rarity,
-    essence: spiritData.essence,
-    dialogue: spiritData.dialogue,
+    color: spiritData.color || "#ffffff",
+    rarity: spiritData.rarity || "обычный",
+    essence: spiritData.essence || "Непознанная сущность",
+    dialogue: spiritData.dialogue || "Я был рождён из тишины...",
     originText: text,
-    position: randomPositionInSphere(2.5), // 💫 теперь равномерное распределение
+    position: randomPositionInSphere(2.5), // 🌌 равномерный респавн
     birthDate: new Date().toISOString(),
   };
 
   // 💾 Сохраняем в архив
-  useSpiritArchiveStore.getState().addSpirit(spirit, spirit.dialogue ? [spirit.dialogue] : []);
+  useSpiritArchiveStore
+    .getState()
+    .addSpirit(spirit, spirit.dialogue ? [spirit.dialogue] : []);
 
   return spirit;
 };

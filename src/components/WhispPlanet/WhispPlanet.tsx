@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-
+import { SpaceOutside } from "./SpaceOutside";
 import { CosmosInside } from "./CosmosInside";
 
 import { useSpiritStore } from "../../store/spiritStore";
@@ -20,19 +20,19 @@ export const WhispPlanet = () => {
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
   const prevCountRef = useRef<number>(spirits.length);
 
-  // 💾 Загружаем при старте
+  // 💾 Загружаем архив один раз
   useEffect(() => {
     if (spirits.length === 0 && archiveSpirits.length > 0) {
       setSpirits(archiveSpirits);
     }
-  }, []);
+  }, [archiveSpirits, setSpirits, spirits.length]);
 
-  // 🎇 Новый дух — вспышка
+  // 🎇 Вспышка при рождении духа
   useEffect(() => {
     if (spirits.length > prevCountRef.current) {
       const newest = spirits[spirits.length - 1];
       setLastAddedId(newest.id);
-      setTimeout(() => setLastAddedId(null), 1000);
+      setTimeout(() => setLastAddedId(null), 1500);
     }
     prevCountRef.current = spirits.length;
   }, [spirits]);
@@ -51,33 +51,39 @@ export const WhispPlanet = () => {
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [spirits]);
+  }, [spirits, setGossip]);
 
   const flashSpirit = lastAddedId
     ? spirits.find((s) => s.id === lastAddedId)
     : null;
 
+  const renderedSpirits = useMemo(
+    () =>
+      spirits.map((spirit) => (
+        <TexturedSpiritSprite
+          key={spirit.id}
+          spirit={spirit}
+          position={spirit.position}
+          size={1.4}
+        />
+      )),
+    [spirits]
+  );
+
   return (
     <div className="w-screen h-screen bg-black">
       <Canvas camera={{ position: [0, 0, 22], fov: 45 }}>
-        
-        
+        <SpaceOutside />
+
         <CosmosInside />
 
-        {spirits.map((spirit) => (
-          <TexturedSpiritSprite
-            key={spirit.id}
-            spirit={spirit}
-            position={spirit.position}
-            size={1.4}
-          />
-        ))}
+        {renderedSpirits}
 
         {flashSpirit && (
           <SpawnFlash
             key={flashSpirit.id + "-flash"}
             position={flashSpirit.position}
-            rarity={flashSpirit.rarity}
+            rarity={flashSpirit.rarity as "обычный" | "редкий" | "легендарный"}
           />
         )}
 
