@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import { SpaceOutside } from "./SpaceOutside";
+
 import { CosmosInside } from "./CosmosInside";
-import { GalaxyCore } from "./GalaxyCore";
+
 import { useSpiritStore } from "../../store/spiritStore";
 import { useSpiritArchiveStore } from "../../store/useSpiritArchiveStore";
 import { TexturedSpiritSprite } from "./TexturedSpiritSprite";
@@ -60,8 +60,8 @@ export const WhispPlanet = () => {
   return (
     <div className="w-screen h-screen bg-black">
       <Canvas camera={{ position: [0, 0, 22], fov: 45 }}>
-        <SpaceOutside />
-        <GalaxyCore />
+        
+        
         <CosmosInside />
 
         {spirits.map((spirit) => (

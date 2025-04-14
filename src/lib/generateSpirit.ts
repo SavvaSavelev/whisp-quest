@@ -1,39 +1,10 @@
-import { Spirit, SpiritMood } from "../entities/types";
-import { analyzeSentiment } from "./analyzeSentiment";
-import { useSpiritArchiveStore } from "../store/useSpiritArchiveStore";
 import { randomPositionInSphere } from "./randomPositionInSphere";
+import { Spirit, SpiritMood } from "../entities/types";
+import { useSpiritArchiveStore } from "../store/useSpiritArchiveStore";
 
-export async function generateSpirit(text: string): Promise<Spirit> {
-  const { mood, color, rarity, essence, dialogue } = await analyzeSentiment(text);
+const FACE_DEFAULT = "/textures/face-.png";
 
-  const densityMap = {
-    обычный: 0.7,
-    редкий: 1,
-    легендарный: 2.5,
-  };
-
-  const safeMood = (mood: string): SpiritMood =>
-    moodToTexture[mood as SpiritMood] ? (mood as SpiritMood) : "спокойный";
-
-  const spirit: Spirit = {
-    id: crypto.randomUUID(),
-    name: "Безымянный дух",
-    mood: safeMood(mood),
-    color,
-    rarity,
-    essence,
-    dialogue,
-    position: randomPositionInSphere(2.4, densityMap[rarity] ?? 1),
-    originText: text,
-    birthDate: new Date().toISOString(),
-  };
-
-  useSpiritArchiveStore.getState().addSpirit(spirit, dialogue ? [dialogue] : []);
-
-  return spirit;
-}
-
-export const moodToTexture: Record<SpiritMood, string> = {
+export const moodToTexture: Record<string, string> = {
   радостный: "/textures/face-happy.png",
   печальный: "/textures/face-sad.png",
   злой: "/textures/face-angry.png",
@@ -43,4 +14,42 @@ export const moodToTexture: Record<SpiritMood, string> = {
   испуганный: "/textures/face-sad.png",
   игривый: "/textures/face-happy.png",
   меланхоличный: "/textures/face-sad.png",
+};
+
+/**
+ * Безопасно возвращает текстуру по настроению
+ */
+export function getMoodTexture(mood: string): string {
+  return moodToTexture[mood] || FACE_DEFAULT;
+}
+
+/**
+ * Генерирует нового духа из пользовательского текста
+ */
+export const generateSpirit = async (text: string): Promise<Spirit> => {
+  const response = await fetch("http://localhost:4000/analyze", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+
+  const spiritData = await response.json();
+
+  const spirit: Spirit = {
+    id: crypto.randomUUID(),
+    name: spiritData.essence || "Безымянный дух",
+    mood: spiritData.mood as SpiritMood,
+    color: spiritData.color,
+    rarity: spiritData.rarity,
+    essence: spiritData.essence,
+    dialogue: spiritData.dialogue,
+    originText: text,
+    position: randomPositionInSphere(2.5), // 💫 теперь равномерное распределение
+    birthDate: new Date().toISOString(),
+  };
+
+  // 💾 Сохраняем в архив
+  useSpiritArchiveStore.getState().addSpirit(spirit, spirit.dialogue ? [spirit.dialogue] : []);
+
+  return spirit;
 };

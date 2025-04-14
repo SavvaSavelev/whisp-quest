@@ -1,13 +1,16 @@
-export type Spirit = {
-    id: string;
-    name: string;
-    mood: SpiritMood;
-    essence: string;
-    rarity: SpiritRarity;
-    position: [number, number, number];
-    color: string; // ✅ добавлено
-    dialogue?: string;
-  };
+export interface Spirit {
+  id: string;
+  name: string;
+  mood: string;
+  color: string;
+  rarity: string;
+  essence: string;
+  dialogue?: string;
+  originText?: string;
+  position: [number, number, number];
+  birthDate?: string;
+}
+
   
   export type SpiritMood =
     | "радостный"
