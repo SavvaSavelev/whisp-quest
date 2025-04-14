@@ -3,7 +3,7 @@ import { WhispPlanet } from "./components/WhispPlanet/WhispPlanet";
 import { SpiritDialogueModal } from "./components/UI/SpiritDialogueModal";
 import { GhibliBackground } from "./components/UI/GhibliBackground";
 import { ParallaxBackground } from "./components/UI/ParallaxBackground";
-import { GossipOverlay } from "./components/UI/GossipOverlay";
+import { GossipBar } from "./components/UI/GossipBar";
 
 function App() {
   return (
@@ -15,10 +15,10 @@ function App() {
       {/* 🌌 Планета и духи */}
       <WhispPlanet />
 
-      {/* 💬 Философские диалоги духов */}
-      <GossipOverlay />
+      {/* 💬 Диалоги между духами */}
+      <GossipBar />
 
-      {/* 🗣️ Диалог */}
+      {/* 🗣️ Диалог с выбранным духом */}
       <SpiritDialogueModal />
 
       {/* 📜 Интерфейс дневника */}

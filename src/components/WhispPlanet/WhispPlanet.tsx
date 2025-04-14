@@ -15,18 +15,19 @@ export const WhispPlanet = () => {
   const archiveSpirits = useSpiritArchiveStore((s) => s.spirits);
   const setSpirits = useSpiritStore((s) => s.setSpirits);
   const spirits = useSpiritStore((s) => s.spirits);
+  const setGossip = useSpiritGossipStore((s) => s.setGossip);
 
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
   const prevCountRef = useRef<number>(spirits.length);
 
-  // 💾 Загружаем архив при старте
+  // 💾 Загружаем при старте
   useEffect(() => {
     if (spirits.length === 0 && archiveSpirits.length > 0) {
       setSpirits(archiveSpirits);
     }
   }, []);
 
-  // 🎇 Отслеживаем нового духа
+  // 🎇 Новый дух — вспышка
   useEffect(() => {
     if (spirits.length > prevCountRef.current) {
       const newest = spirits[spirits.length - 1];
@@ -36,15 +37,19 @@ export const WhispPlanet = () => {
     prevCountRef.current = spirits.length;
   }, [spirits]);
 
-  // 🗣️ Автообщение между духами
+  // 🗣️ Диалоги между духами
   useEffect(() => {
     const interval = setInterval(async () => {
       if (spirits.length < 2) return;
+
       const [a, b] = spirits.sort(() => 0.5 - Math.random()).slice(0, 2);
-      const gossip = await spiritGossip(a.id, b.id);
-      useSpiritGossipStore.getState().setGossip(gossip);
-      setTimeout(() => useSpiritGossipStore.getState().setGossip(null), 10000);
+      const gossip = await spiritGossip(a, b);
+      if (gossip) {
+        setGossip(gossip);
+        setTimeout(() => setGossip(null), 10000);
+      }
     }, 30000);
+
     return () => clearInterval(interval);
   }, [spirits]);
 
