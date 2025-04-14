@@ -8,6 +8,8 @@ import { useSpiritStore } from "../../store/spiritStore";
 import { useSpiritArchiveStore } from "../../store/useSpiritArchiveStore";
 import { TexturedSpiritSprite } from "./TexturedSpiritSprite";
 import { SpawnFlash } from "./SpawnFlash";
+import { useSpiritGossipStore } from "../../store/useSpiritGossipStore";
+import { spiritGossip } from "../../lib/spiritGossip";
 
 export const WhispPlanet = () => {
   const archiveSpirits = useSpiritArchiveStore((s) => s.spirits);
@@ -32,6 +34,18 @@ export const WhispPlanet = () => {
       setTimeout(() => setLastAddedId(null), 1000);
     }
     prevCountRef.current = spirits.length;
+  }, [spirits]);
+
+  // 🗣️ Автообщение между духами
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (spirits.length < 2) return;
+      const [a, b] = spirits.sort(() => 0.5 - Math.random()).slice(0, 2);
+      const gossip = await spiritGossip(a.id, b.id);
+      useSpiritGossipStore.getState().setGossip(gossip);
+      setTimeout(() => useSpiritGossipStore.getState().setGossip(null), 10000);
+    }, 30000);
+    return () => clearInterval(interval);
   }, [spirits]);
 
   const flashSpirit = lastAddedId

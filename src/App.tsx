@@ -3,6 +3,7 @@ import { WhispPlanet } from "./components/WhispPlanet/WhispPlanet";
 import { SpiritDialogueModal } from "./components/UI/SpiritDialogueModal";
 import { GhibliBackground } from "./components/UI/GhibliBackground";
 import { ParallaxBackground } from "./components/UI/ParallaxBackground";
+import { GossipOverlay } from "./components/UI/GossipOverlay";
 
 function App() {
   return (
@@ -13,6 +14,9 @@ function App() {
 
       {/* 🌌 Планета и духи */}
       <WhispPlanet />
+
+      {/* 💬 Философские диалоги духов */}
+      <GossipOverlay />
 
       {/* 🗣️ Диалог */}
       <SpiritDialogueModal />
