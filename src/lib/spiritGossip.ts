@@ -6,10 +6,8 @@ export const spiritGossip = async (from: Spirit, to: Spirit) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        fromEssence: from.essence,
-        toEssence: to.essence,
-        fromMood: from.mood,
-        toMood: to.mood,
+        from,
+        to
       }),
     });
 
@@ -18,12 +16,11 @@ export const spiritGossip = async (from: Spirit, to: Spirit) => {
     return {
       from,
       to,
-      question: data.question || "Ты кто вообще, блядь?",
-      answer: data.answer || "А ты сам кто такой, чёрт пушистый?",
+      question: data.question || "...",
+      answer: data.answer || "...",
     };
-    
-  } catch (error) {
-    console.error("❌ Ошибка при запросе spirit-gossip:", error);
+  } catch (e) {
+    console.error("❌ Ошибка spiritGossip.ts:", e);
     return null;
   }
 };

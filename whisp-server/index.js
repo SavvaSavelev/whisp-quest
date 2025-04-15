@@ -107,30 +107,37 @@ app.post("/spirit-chat", async (req, res) => {
   }
 });
 
-// 💬 Диалог между двумя духами (живой обмен)
+// 🗣️ Диалог между двумя духами (реалистичный обмен)
 app.post("/spirit-gossip", async (req, res) => {
-  const { from, to, fromMood, toMood, fromEssence, toEssence } = req.body;
+  const { from, to } = req.body;
 
   const systemPrompt = `
-Ты — дух по имени "${fromEssence}", с настроением "${fromMood}".
-Твой собеседник — дух "${toEssence}", с настроением "${toMood}".
+Ты — дух по имени "${from.essence}" с настроением "${from.mood}".
+Перед тобой дух по имени "${to.essence}" с настроением "${to.mood}".
 
-Твоя задача — начать философский, чувственный разговор. 
-Ты задай вопрос или расскажи что-то о себе в 1–2 строках.
+Ты появился из слов: «${from.originText || "неизвестно"}»
+Он появился из слов: «${to.originText || "неизвестно"}»
 
-Затем этот дух должен ответить тебе коротко, но содержательно (тоже 1–2 строки).
+Твоя задача — начать разговор как живое существо. 
+Задай вопрос собеседнику о его происхождении, чувствах, мыслях, переживаниях, или просто поговори о чём-то важном.
+Будь человечным, тёплым или глубоким, как тебе подскажет твоя сущность.
+Говори от первого лица. Без фэнтезийных штампов. Только живой искренний стиль. Максимум 4 строки.
+`;
 
-💬 Формат ответа строго:
-{
-  "question": "Первая реплика духа ${fromEssence}",
-  "answer": "Ответ духа ${toEssence}"
-}
+  const answerPrompt = `
+Ты — дух по имени "${to.essence}" с настроением "${to.mood}".
+С тобой говорит дух "${from.essence}", вот его вопрос:
 
-Не добавляй ничего, кроме JSON.
+«${req.body.question || "..." }»
+
+Ты появился из слов: «${to.originText || "неизвестно"}»
+
+Ответь как живое, чувствующее существо. Поделись тем, что ты чувствуешь, почему родился, что в тебе осталось от слов человека.
+Ответ — максимум 4 строки. Очень человечно.
 `;
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const questionRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${OPENAI_KEY}`,
@@ -140,21 +147,37 @@ app.post("/spirit-gossip", async (req, res) => {
         model: "gpt-3.5-turbo",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: "Начни их разговор." }
+          { role: "user", content: "Начни разговор." },
         ],
         temperature: 0.85,
-        max_tokens: 300,
+        max_tokens: 250,
       }),
     });
 
-    const result = await response.json();
-    const raw = result.choices?.[0]?.message?.content?.trim() || "{}";
-    const json = JSON.parse(raw);
+    const questionResult = await questionRes.json();
+    const question = questionResult.choices?.[0]?.message?.content?.trim() || "...";
 
-    return res.json({
-      question: json.question || "Что ты чувствуешь в этой тишине?",
-      answer: json.answer || "Я родился из шепота боли, но теперь я спокоен.",
+    const answerRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${OPENAI_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: answerPrompt },
+          { role: "user", content: question },
+        ],
+        temperature: 0.85,
+        max_tokens: 250,
+      }),
     });
+
+    const answerResult = await answerRes.json();
+    const answer = answerResult.choices?.[0]?.message?.content?.trim() || "...";
+
+    return res.json({ question, answer });
   } catch (e) {
     console.error("❌ Ошибка spirit-gossip:", e);
     return res.status(500).json({ error: "gossip error", message: e.message });
