@@ -9,7 +9,15 @@ export interface Spirit {
   originText?: string;
   position: [number, number, number];
   birthDate?: string;
+  
 }
+
+export interface SpiritGossip {
+  from: string;
+  to: string;
+  text: string;
+}
+
 
   
   export type SpiritMood =

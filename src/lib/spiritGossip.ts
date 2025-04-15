@@ -1,27 +1,29 @@
 import { Spirit } from "../entities/types";
 
-export async function spiritGossip(from: Spirit, to: Spirit) {
+export const spiritGossip = async (from: Spirit, to: Spirit) => {
   try {
     const res = await fetch("http://localhost:4000/spirit-gossip", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: from.essence,
-        to: to.essence,
-        text: "Они обсуждают своё существование.",
+        fromEssence: from.essence,
+        toEssence: to.essence,
+        fromMood: from.mood,
+        toMood: to.mood,
       }),
     });
 
     const data = await res.json();
+
     return {
       from,
       to,
-      text: data.reply,
+      question: data.question || "Ты кто вообще, блядь?",
+      answer: data.answer || "А ты сам кто такой, чёрт пушистый?",
     };
-  } catch (e) {
-    console.error("❌ Ошибка spirit-gossip:", e);
+    
+  } catch (error) {
+    console.error("❌ Ошибка при запросе spirit-gossip:", error);
     return null;
   }
-}
+};

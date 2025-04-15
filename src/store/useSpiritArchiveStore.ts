@@ -1,53 +1,25 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { Spirit } from "../entities/types";
 
-interface SpiritWithChat extends Spirit {
-  history: string[];
-}
-
-interface ArchiveStore {
-  spirits: SpiritWithChat[];
-  addSpirit: (spirit: Spirit, history?: string[]) => void;
-  getSpiritById: (id: string) => SpiritWithChat | undefined;
-  removeSpirit: (id: string) => void;
+interface SpiritArchiveStore {
+  spirits: Spirit[];
+  addSpirit: (spirit: Spirit, dialogueLog?: string[]) => void;
   clearArchive: () => void;
 }
 
-const LOCAL_KEY = "spirit-archive";
-
-function loadFromStorage(): SpiritWithChat[] {
-  try {
-    const raw = localStorage.getItem(LOCAL_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveToStorage(spirits: SpiritWithChat[]) {
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(spirits));
-}
-
-export const useSpiritArchiveStore = create<ArchiveStore>((set, get) => ({
-  spirits: loadFromStorage(),
-
-  addSpirit: (spirit, history = []) => {
-    const newSpirit: SpiritWithChat = { ...spirit, history };
-    const updated = [newSpirit, ...get().spirits.filter((s) => s.id !== spirit.id)];
-    saveToStorage(updated);
-    set({ spirits: updated });
-  },
-
-  getSpiritById: (id) => get().spirits.find((s) => s.id === id),
-
-  removeSpirit: (id) => {
-    const updated = get().spirits.filter((s) => s.id !== id);
-    saveToStorage(updated);
-    set({ spirits: updated });
-  },
-
-  clearArchive: () => {
-    localStorage.removeItem(LOCAL_KEY);
-    set({ spirits: [] });
-  },
-}));
+export const useSpiritArchiveStore = create<SpiritArchiveStore>()(
+  persist(
+    (set) => ({
+      spirits: [],
+      addSpirit: (spirit, dialogueLog = []) =>
+        set((state) => ({
+          spirits: [...state.spirits, { ...spirit, dialogueLog }],
+        })),
+      clearArchive: () => set({ spirits: [] }),
+    }),
+    {
+      name: "spirit-archive-storage", // localStorage key
+    }
+  )
+);

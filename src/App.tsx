@@ -2,11 +2,9 @@ import { useEffect } from "react";
 import { preloadAllTextures } from "./lib/preloadAllAssets";
 import { useAssetsReadyStore } from "./store/useAssetsReadyStore";
 
-import { DiaryPage } from "./pages/DiaryPage";
-import { WhispPlanet } from "./components/WhispPlanet/WhispPlanet";
+import { SpiritAtelier } from "./components/Atelier/SpiritAtelier";
 import { SpiritDialogueModal } from "./components/UI/SpiritDialogueModal";
-import { GhibliBackground } from "./components/UI/GhibliBackground";
-import { ParallaxBackground } from "./components/UI/ParallaxBackground";
+import { DiaryPage } from "./components/UI/DiaryPage";
 import { GossipBar } from "./components/UI/GossipBar";
 
 function App() {
@@ -19,23 +17,10 @@ function App() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden">
-      {/* 🍃 Волшебный фон */}
-      <GhibliBackground />
-      <ParallaxBackground />
-
-      {/* 🌌 Планета и духи */}
-      {ready && <WhispPlanet />}
-
-      {/* 💬 Диалоги между духами */}
+      {ready && <SpiritAtelier />}
       {ready && <GossipBar />}
-
-      {/* 🗣️ Диалог с выбранным духом */}
       <SpiritDialogueModal />
-
-      {/* 📜 Интерфейс дневника */}
-      <div className="absolute inset-0 z-10 pointer-events-none">
-        <DiaryPage />
-      </div>
+      <DiaryPage />
     </div>
   );
 }

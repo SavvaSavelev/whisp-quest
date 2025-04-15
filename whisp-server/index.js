@@ -107,14 +107,26 @@ app.post("/spirit-chat", async (req, res) => {
   }
 });
 
-// 🗣️ Диалог между двумя духами (философский обмен)
+// 💬 Диалог между двумя духами (живой обмен)
 app.post("/spirit-gossip", async (req, res) => {
-  const { from, to, text } = req.body;
+  const { from, to, fromMood, toMood, fromEssence, toEssence } = req.body;
 
   const systemPrompt = `
-Ты — дух по имени "${from}". Твой собеседник — дух "${to}".
-Твоя задача — ответить на философскую реплику или идею, как мудрое мифическое существо.
-Говори красиво, образно, коротко (до 3 строк), но с глубоким смыслом.
+Ты — дух по имени "${fromEssence}", с настроением "${fromMood}".
+Твой собеседник — дух "${toEssence}", с настроением "${toMood}".
+
+Твоя задача — начать философский, чувственный разговор. 
+Ты задай вопрос или расскажи что-то о себе в 1–2 строках.
+
+Затем этот дух должен ответить тебе коротко, но содержательно (тоже 1–2 строки).
+
+💬 Формат ответа строго:
+{
+  "question": "Первая реплика духа ${fromEssence}",
+  "answer": "Ответ духа ${toEssence}"
+}
+
+Не добавляй ничего, кроме JSON.
 `;
 
   try {
@@ -128,21 +140,28 @@ app.post("/spirit-gossip", async (req, res) => {
         model: "gpt-3.5-turbo",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: text },
+          { role: "user", content: "Начни их разговор." }
         ],
         temperature: 0.85,
-        max_tokens: 120,
+        max_tokens: 300,
       }),
     });
 
     const result = await response.json();
-    const reply = result.choices?.[0]?.message?.content?.trim() || "Я размышляю об этом...";
-    return res.json({ reply });
+    const raw = result.choices?.[0]?.message?.content?.trim() || "{}";
+    const json = JSON.parse(raw);
+
+    return res.json({
+      question: json.question || "Что ты чувствуешь в этой тишине?",
+      answer: json.answer || "Я родился из шепота боли, но теперь я спокоен.",
+    });
   } catch (e) {
     console.error("❌ Ошибка spirit-gossip:", e);
     return res.status(500).json({ error: "gossip error", message: e.message });
   }
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`🌌 Whisp AI Spirit Server запущен → http://localhost:${PORT}`);

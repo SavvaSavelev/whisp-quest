@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useSpiritModalStore } from "../../store/useSpiritModalStore";
 import { useSpiritArchiveStore } from "../../store/useSpiritArchiveStore";
 import { useSpiritStore } from "../../store/spiritStore";
-import { moodToTexture } from "../../lib/generateSpirit";
+import { getMoodTexture } from "../../lib/getMoodTexture";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
@@ -54,7 +54,7 @@ export const SpiritDialogueModal = () => {
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
       <div className="bg-zinc-900 text-white rounded-2xl shadow-lg p-6 w-[500px] relative border border-white/20 max-h-[90vh] overflow-y-auto">
         <img
-          src={moodToTexture[spirit.mood]}
+          src={getMoodTexture(spirit.mood)}
           alt="Spirit"
           className="w-24 h-24 mx-auto mb-4 rounded-full border border-white/30 shadow-md"
         />
@@ -71,9 +71,7 @@ export const SpiritDialogueModal = () => {
         )}
 
         {spirit.originText && (
-          <p className="text-xs text-zinc-300 italic text-center mb-4">
-            «{spirit.originText}»
-          </p>
+          <p className="text-xs text-zinc-300 italic text-center mb-4">«{spirit.originText}»</p>
         )}
 
         <div className="bg-zinc-800 p-3 rounded mb-4 space-y-2 text-sm max-h-60 overflow-y-auto">
@@ -104,7 +102,6 @@ export const SpiritDialogueModal = () => {
           </button>
         </div>
 
-        {/* 🧹 Кнопки удаления */}
         <div className="flex justify-between gap-2 text-sm text-zinc-300 mt-4">
           <button
             onClick={handleDeleteSpirit}
@@ -112,7 +109,6 @@ export const SpiritDialogueModal = () => {
           >
             🗑️ Удалить духа
           </button>
-
           <button
             onClick={handleClearAll}
             className="px-3 py-1 rounded bg-zinc-700 hover:bg-red-700 transition-colors"

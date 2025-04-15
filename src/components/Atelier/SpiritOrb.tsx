@@ -3,7 +3,7 @@ import { Sprite } from "three";
 import { useTexture, Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Spirit } from "../../entities/types";
-import { moodToTexture } from "../../lib/getMoodTexture";
+import { getMoodTexture } from "../../lib/getMoodTexture";
 import { useSpiritModalStore } from "../../store/useSpiritModalStore";
 import { useSpiritGossipStore } from "../../store/useSpiritGossipStore";
 
@@ -15,18 +15,18 @@ interface Props {
 
 export const TexturedSpiritSprite = ({ spirit, position, size = 1.4 }: Props) => {
   const ref = useRef<Sprite>(null);
-  const texture = useTexture(moodToTexture[spirit.mood]);
+  const texture = useTexture(getMoodTexture(spirit.mood));
   const [hovered, setHovered] = useState(false);
 
   const gossip = useSpiritGossipStore((s) => s.currentGossip);
-  const isSpeaking = gossip?.from === spirit.essence;
+  const isSpeaking = gossip?.from?.id === spirit.id;
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
     if (ref.current) {
       const floatY = Math.sin(t * 2) * 0.1;
       const scale = 1 + Math.sin(t * 4) * 0.05 + (hovered ? 0.1 : 0);
-      ref.current.position.y = position[1] + floatY;
+      ref.current.position.set(position[0], position[1] + floatY, position[2]);
       ref.current.scale.set(size * scale, size * scale, 1);
     }
   });

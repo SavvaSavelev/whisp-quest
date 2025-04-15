@@ -1,13 +1,12 @@
-// src/store/useSpiritModalStore.ts
 import { create } from "zustand";
 import { Spirit } from "../entities/types";
 
-type SpiritModalStore = {
+interface SpiritModalStore {
   spirit: Spirit | null;
   isOpen: boolean;
   openModal: (spirit: Spirit) => void;
   closeModal: () => void;
-};
+}
 
 export const useSpiritModalStore = create<SpiritModalStore>((set) => ({
   spirit: null,
