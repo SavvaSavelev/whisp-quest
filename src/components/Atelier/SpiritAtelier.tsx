@@ -1,64 +1,64 @@
-import { useEffect, useMemo } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { useSpiritStore } from '../../store/spiritStore';
-import { useSpiritGossipStore } from '../../store/useSpiritGossipStore';
-import { useSpiritArchiveStore } from '../../store/useSpiritArchiveStore';
-import { TexturedSpiritSprite } from './SpiritOrb';
-import { spiritGossip } from '../../lib/spiritGossip';
-import { BackgroundRoom } from './BackgroundRoom';
-import { AtmosphereEffects } from './AtmosphereEffects';
+// src/components/Atelier/SpiritAtelier.tsx
+import React, { useEffect, useMemo } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { useSpiritStore } from '../../store/spiritStore'
+import { useSpiritGossipStore } from '../../store/useSpiritGossipStore'
+import { useSpiritArchiveStore } from '../../store/useSpiritArchiveStore'
+import { TexturedSpiritSprite } from './SpiritOrb'
+import { spiritGossip } from '../../lib/spiritGossip'
 
-/**
- * Мастерская духов: отображает один активный дух по центру.
- * Сплетни генерируются между любыми двумя духами (архив + активный).
- */
-export const SpiritAtelier = () => {
-  const spirits = useSpiritStore((s) => s.spirits);
-  const archiveSpirits = useSpiritArchiveStore((s) => s.spirits);
-  const setGossip = useSpiritGossipStore((s) => s.setGossip);
+import { AtmosphereEffects } from './AtmosphereEffects'
+import { useVanta } from '../../hooks/useVanta'
 
-  // Интервал сплетен: выбираем 2 случайных духа из активного + архива
+export const SpiritAtelier: React.FC = () => {
+  const spirits = useSpiritStore((s) => s.spirits)
+  const archive = useSpiritArchiveStore((s) => s.spirits)
+  const setGossip = useSpiritGossipStore((s) => s.setGossip)
+
+  // Вешаем фон Vanta.net на обёртку
+  const vantaRef = useVanta('NET', {
+    backgroundColor: 0x000000,
+    color: 0x00ffcc,
+    points: 12.0,
+    maxDistance: 20.0,
+    spacing: 15.0,
+    mouseControls: true,
+    touchControls: true,
+    gyroControls: false,
+  })
+
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const all = [...spirits, ...archiveSpirits];
-      if (all.length < 2) return;
-      const shuffled = all.sort(() => 0.5 - Math.random()).slice(0, 2);
-      const gossip = await spiritGossip(shuffled[0], shuffled[1]);
+    const iv = setInterval(async () => {
+      const all = [...spirits, ...archive]
+      if (all.length < 2) return
+      const [a, b] = all.sort(() => 0.5 - Math.random()).slice(0, 2)
+      const gossip = await spiritGossip(a, b)
       if (gossip) {
-        setGossip(gossip);
-        setTimeout(() => setGossip(null), 60000);
+        // SpiritGossip требует поле text
+        setGossip({ ...gossip, text: gossip.question })
+        setTimeout(() => setGossip(null), 60000)
       }
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [spirits, archiveSpirits, setGossip]);
+    }, 30000)
+    return () => clearInterval(iv)
+  }, [spirits, archive, setGossip])
 
-  // отображаем активных духов (на практике — одного) по центру и крупно
-  const renderedSpirits = useMemo(
+  const rendered = useMemo(
     () =>
-      spirits.map((spirit) => {
-        const position: [number, number, number] = [0, 2.5, 0];
-        const size = 2.8;
-        return (
-          <TexturedSpiritSprite
-            key={spirit.id}
-            spirit={spirit}
-            position={position}
-            size={size}
-          />
-        );
-      }),
+      spirits.map((sp) => (
+        <TexturedSpiritSprite key={sp.id} spirit={sp} position={[0, 2.5, 0]} size={2.8} />
+      )),
     [spirits]
-  );
+  )
 
   return (
-    <div className="w-screen h-screen">
+    <div ref={vantaRef} className="w-screen h-screen relative">
       <Canvas camera={{ position: [0, 0, 22], fov: 45 }}>
-        <BackgroundRoom />
+      
         <AtmosphereEffects />
-        {renderedSpirits}
+        {rendered}
         <ambientLight intensity={0.6} />
         <pointLight position={[10, 10, 10]} intensity={1.5} />
       </Canvas>
     </div>
-  );
-};
+  )
+}

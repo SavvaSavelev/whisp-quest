@@ -15,10 +15,12 @@ function App() {
     useAssetsReadyStore.getState().setReady(true);
   }, []);
 
+  if (!ready) return null;
+
   return (
     <div className="relative w-screen h-screen overflow-hidden">
-      {ready && <SpiritAtelier />}
-      {ready && <GossipBar />}
+      <SpiritAtelier />
+      <GossipBar />
       <SpiritDialogueModal />
       <DiaryPage />
       <SpiritArchiveBar />
