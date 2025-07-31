@@ -1,10 +1,16 @@
-import { useState } from "react";
-import { generateSpirit } from "../../lib/generateSpirit";
-import { useSpiritStore } from "../../store/spiritStore";
+import { useState } from 'react';
+import { generateSpirit } from '../../lib/generateSpirit';
+import { useSpiritStore } from '../../store/spiritStore';
+import { useSpiritArchiveStore } from '../../store/useSpiritArchiveStore';
 
+/**
+ * Создаёт нового духа. Предыдущий активный дух переносится в архив,
+ * а новый *не* сохраняется в архиве до замены.
+ */
 export const DiaryPage = () => {
-  const [text, setText] = useState("");
-  const addSpiritToScene = useSpiritStore((s) => s.addSpirit);
+  const [text, setText] = useState('');
+  const setSpirits = useSpiritStore((s) => s.setSpirits);
+  const addSpiritToArchive = useSpiritArchiveStore((s) => s.addSpirit);
 
   const handleSummon = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -12,15 +18,22 @@ export const DiaryPage = () => {
 
     const newSpirit = await generateSpirit(text);
     if (newSpirit) {
-      addSpiritToScene(newSpirit);
-      setText(""); // Очищаем поле
+      // переносим текущего духа в архив (если он есть)
+      const current = useSpiritStore.getState().spirits[0];
+      if (current) {
+        addSpiritToArchive(current);
+      }
+      // делаем нового духа активным (не добавляем его в архив!)
+      setSpirits([newSpirit]);
+      setText('');
     }
   };
 
   return (
     <form
       onSubmit={handleSummon}
-      className="absolute bottom-6 right-6 z-50 pointer-events-auto"
+      // центрируем форму по горизонтали у нижнего края
+      className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
     >
       <div className="flex gap-2 items-center bg-zinc-900/80 backdrop-blur-lg rounded-xl px-4 py-3 shadow-lg">
         <input

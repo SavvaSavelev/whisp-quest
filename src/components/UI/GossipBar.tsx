@@ -1,36 +1,48 @@
-import { useSpiritGossipStore } from "../../store/useSpiritGossipStore";
-import { getMoodTexture } from "../../lib/getMoodTexture";
+// src/components/UI/GossipBar.tsx
+import { useSpiritGossipStore } from '../../store/useSpiritGossipStore';
+import { getMoodTexture } from '../../lib/getMoodTexture';
 
 export const GossipBar = () => {
   const gossip = useSpiritGossipStore((s) => s.currentGossip);
-
   if (!gossip) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black/80 text-white px-6 py-4 rounded-xl shadow-lg border border-white/10 backdrop-blur-md flex gap-4 z-40 max-w-[90vw]">
+    <div
+      className="
+        fixed left-1/2 transform -translate-x-1/2
+        bottom-32          /* опустили до ~8rem от низа */
+        z-[60]
+        bg-zinc-900/80
+        backdrop-blur-lg
+        rounded-xl
+        px-6 py-4
+        flex items-start gap-8
+        shadow-lg
+      "
+    >
       {/* Первый дух (вопрос) */}
-      <div className="flex gap-2 items-start">
+      <div className="flex items-start gap-3">
         <img
           src={getMoodTexture(gossip.from.mood)}
-          alt="from"
-          className="w-10 h-10 rounded-full border border-white/20 shadow object-cover"
+          alt={gossip.from.essence}
+          className="w-10 h-10 rounded-full border border-white/30 shadow"
         />
-        <div className="text-sm leading-snug">
-          <div className="text-indigo-300 font-semibold">{gossip.from.essence}</div>
-          <div className="text-white">{gossip.question}</div>
+        <div className="text-white text-sm">
+          <span className="font-semibold">{gossip.from.essence}:</span>{' '}
+          {gossip.question}
         </div>
       </div>
 
       {/* Второй дух (ответ) */}
-      <div className="flex gap-2 items-start">
+      <div className="flex items-start gap-3">
         <img
           src={getMoodTexture(gossip.to.mood)}
-          alt="to"
-          className="w-10 h-10 rounded-full border border-white/20 shadow object-cover"
+          alt={gossip.to.essence}
+          className="w-10 h-10 rounded-full border border-white/30 shadow"
         />
-        <div className="text-sm leading-snug">
-          <div className="text-indigo-300 font-semibold">{gossip.to.essence}</div>
-          <div className="text-white">{gossip.answer}</div>
+        <div className="text-white text-sm">
+          <span className="font-semibold">{gossip.to.essence}:</span>{' '}
+          {gossip.answer}
         </div>
       </div>
     </div>
