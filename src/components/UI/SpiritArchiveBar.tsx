@@ -1,37 +1,37 @@
-import { getMoodTexture } from '../../lib/getMoodTexture';
-import { Spirit } from '../../entities/types';
-import { useSpiritStore } from '../../store/spiritStore';
-import { useSpiritArchiveStore } from '../../store/useSpiritArchiveStore';
+// src/components/Atelier/SpiritArchiveBar.tsx
+import { getMoodTexture } from '../../lib/getMoodTexture'
+import { Spirit } from '../../entities/types'
+import { useSpiritStore } from '../../store/spiritStore'
+import { useSpiritArchiveStore } from '../../store/useSpiritArchiveStore'
+import { useSpiritGossipStore } from '../../store/useSpiritGossipStore'
 
 /**
  * Панель хранилища: клик по духу вызывает его в центр, активный дух уходит в архив.
- * Добавлены стили наведения: контур и плавное увеличение.
  */
 export const SpiritArchiveBar = () => {
-  const archiveSpirits = useSpiritArchiveStore((s) => s.spirits);
+  const archiveSpirits = useSpiritArchiveStore((s) => s.spirits)
+  const setGossip      = useSpiritGossipStore((s) => s.setGossip)
 
   const handleClick = (spirit: Spirit) => {
-    const activeStore = useSpiritStore.getState();
-    const archiveStore = useSpiritArchiveStore.getState();
+    const activeStore  = useSpiritStore.getState()
+    const archiveStore = useSpiritArchiveStore.getState()
 
-    const currentActive = activeStore.spirits[0];
-
-    // Переносим текущего в архив, если он есть и отличается от выбранного
+    const currentActive = activeStore.spirits[0]
     if (currentActive && currentActive.id !== spirit.id) {
-      archiveStore.addSpirit(currentActive);
+      archiveStore.addSpirit(currentActive)
     }
 
-    // Удаляем выбранного духа из архива
-    archiveStore.removeSpirit(spirit.id);
+    archiveStore.removeSpirit(spirit.id)
+    activeStore.setSpirits([spirit])
 
-    // Делаем выбранного духа активным
-    activeStore.setSpirits([spirit]);
-  };
+    // Сбрасываем старый диалог
+    setGossip(null)
+  }
 
-  if (!archiveSpirits.length) return null;
+  if (!archiveSpirits.length) return null
 
   return (
-    <div className="fixed right-0 top-0 h-full w-60 bg-black/70 backdrop-blur-md flex flex-col p-2 space-y-2 overflow-y-auto">
+    <div className="fixed right-0 top-0 h-full w-60 z-50 bg-black/70 backdrop-blur-md flex flex-col p-2 space-y-2 overflow-y-auto">
       {archiveSpirits.map((spirit) => (
         <div
           key={spirit.id}
@@ -52,5 +52,5 @@ export const SpiritArchiveBar = () => {
         </div>
       ))}
     </div>
-  );
-};
+  )
+}

@@ -1,4 +1,5 @@
-import { useState } from "react";
+// src/components/Atelier/SpiritDialogueModal.tsx
+import React, { useState, useEffect } from "react";
 import { useSpiritModalStore } from "../../store/useSpiritModalStore";
 import { useSpiritArchiveStore } from "../../store/useSpiritArchiveStore";
 import { useSpiritStore } from "../../store/spiritStore";
@@ -6,21 +7,50 @@ import { getMoodTexture } from "../../lib/getMoodTexture";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
-export const SpiritDialogueModal = () => {
+export const SpiritDialogueModal: React.FC = () => {
   const { spirit, isOpen, closeModal } = useSpiritModalStore();
-  const { removeSpirit, clearArchive } = useSpiritArchiveStore();
+  const { removeSpirit: removeFromArchive, clearArchive } = useSpiritArchiveStore();
   const { removeSpirit: removeFromScene, setSpirits } = useSpiritStore();
 
+  // ключ для localStorage по текущему spirit.id
+  const storageKey = spirit ? `chatLog-${spirit.id}` : "";
+
+  // состояние ввода и история чата, инициализируем из localStorage (или { spirit.dialogue })
   const [userMessage, setUserMessage] = useState("");
-  const [chatLog, setChatLog] = useState<string[]>(spirit?.dialogue ? [spirit.dialogue] : []);
+  const [chatLog, setChatLog] = useState<string[]>(() => {
+    if (!spirit) return [];
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try { return JSON.parse(saved); }
+      catch { /* fallthrough */ }
+    }
+    return spirit.dialogue ? [spirit.dialogue] : [];
+  });
   const [loading, setLoading] = useState(false);
+
+  // при смене spirit — сбрасываем чат из localStorage/инициализируем заново
+  useEffect(() => {
+    if (!spirit) return;
+    const saved = localStorage.getItem(`chatLog-${spirit.id}`);
+    if (saved) {
+      try { setChatLog(JSON.parse(saved)); }
+      catch { setChatLog(spirit.dialogue ? [spirit.dialogue] : []); }
+    } else {
+      setChatLog(spirit.dialogue ? [spirit.dialogue] : []);
+    }
+  }, [spirit?.id]);
+
+  // синхронизируем чат в localStorage
+  useEffect(() => {
+    if (!spirit) return;
+    localStorage.setItem(storageKey, JSON.stringify(chatLog));
+  }, [chatLog, storageKey]);
 
   if (!isOpen || !spirit) return null;
 
   const askSpirit = async () => {
     if (!userMessage.trim()) return;
     setLoading(true);
-
     const response = await fetch("http://localhost:4000/spirit-chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -31,22 +61,26 @@ export const SpiritDialogueModal = () => {
         history: chatLog,
       }),
     });
-
     const data = await response.json();
-    setChatLog([...chatLog, userMessage, data.reply]);
+    setChatLog((prev) => [...prev, userMessage, data.reply]);
     setUserMessage("");
     setLoading(false);
   };
 
   const handleDeleteSpirit = () => {
-    removeSpirit(spirit.id);
+    removeFromArchive(spirit.id);
     removeFromScene(spirit.id);
+    localStorage.removeItem(storageKey);
     closeModal();
   };
 
   const handleClearAll = () => {
     clearArchive();
     setSpirits([]);
+    // очистим все сохранённые чаты
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith("chatLog-"))
+      .forEach((key) => localStorage.removeItem(key));
     closeModal();
   };
 
@@ -63,15 +97,18 @@ export const SpiritDialogueModal = () => {
           Настроение: <span className="text-white font-medium">{spirit.mood}</span> • Редкость:{" "}
           <span className="text-white font-medium">{spirit.rarity}</span>
         </p>
-
         {spirit.birthDate && (
           <p className="text-xs text-zinc-400 text-center mb-1">
-            🕯️ Возник {format(new Date(spirit.birthDate), "d MMMM yyyy, HH:mm", { locale: ru })}
+            🕯️ Возник{" "}
+            {format(new Date(spirit.birthDate), "d MMMM yyyy, HH:mm", {
+              locale: ru,
+            })}
           </p>
         )}
-
         {spirit.originText && (
-          <p className="text-xs text-zinc-300 italic text-center mb-4">«{spirit.originText}»</p>
+          <p className="text-xs text-zinc-300 italic text-center mb-4">
+            «{spirit.originText}»
+          </p>
         )}
 
         <div className="bg-zinc-800 p-3 rounded mb-4 space-y-2 text-sm max-h-60 overflow-y-auto">
