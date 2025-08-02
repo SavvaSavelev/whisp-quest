@@ -5,9 +5,8 @@ import { useSpiritArchiveStore } from "../../store/useSpiritArchiveStore";
 import { useSpiritStore } from "../../store/spiritStore";
 import { getMoodTexture } from "../../lib/getMoodTexture";
 import { format } from "date-fns";
-import { ru } from "date-fns/locale";
 
-export const SpiritDialogueModal: React.FC = () => {
+export const SpiritDialogueModal: React.FC<{ showStorage?: boolean }> = ({ showStorage }) => {
   const { spirit, isOpen, closeModal } = useSpiritModalStore();
   const { removeSpirit: removeFromArchive, clearArchive } = useSpiritArchiveStore();
   const { removeSpirit: removeFromScene, setSpirits } = useSpiritStore();
@@ -38,15 +37,15 @@ export const SpiritDialogueModal: React.FC = () => {
     } else {
       setChatLog(spirit.dialogue ? [spirit.dialogue] : []);
     }
-  }, [spirit?.id]);
+  }, [spirit, spirit?.id]);
 
   // синхронизируем чат в localStorage
   useEffect(() => {
     if (!spirit) return;
     localStorage.setItem(storageKey, JSON.stringify(chatLog));
-  }, [chatLog, storageKey]);
+  }, [chatLog, storageKey, spirit]);
 
-  if (!isOpen || !spirit) return null;
+  if (!isOpen || !spirit || showStorage) return null;
 
   const askSpirit = async () => {
     if (!userMessage.trim()) return;
@@ -100,9 +99,7 @@ export const SpiritDialogueModal: React.FC = () => {
         {spirit.birthDate && (
           <p className="text-xs text-zinc-400 text-center mb-1">
             🕯️ Возник{" "}
-            {format(new Date(spirit.birthDate), "d MMMM yyyy, HH:mm", {
-              locale: ru,
-            })}
+            {format(new Date(spirit.birthDate), "d MMMM yyyy, HH:mm")}
           </p>
         )}
         {spirit.originText && (

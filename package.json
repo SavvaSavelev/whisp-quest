@@ -19,6 +19,7 @@
     "dotenv": "^16.4.7",
     "drei": "^2.2.21",
     "express": "^5.1.0",
+    "framer-motion": "^12.23.12",
     "glslify": "^7.1.1",
     "nanoid": "^5.1.5",
     "node-fetch": "^3.3.2",

@@ -7,10 +7,11 @@ import { useSpiritArchiveStore } from '../../store/useSpiritArchiveStore';
  * Создаёт нового духа. Предыдущий активный дух переносится в архив,
  * а новый *не* сохраняется в архиве до замены.
  */
-export const DiaryPage = () => {
+export const DiaryPage = ({ showStorage }: { showStorage?: boolean }) => {
   const [text, setText] = useState('');
   const setSpirits = useSpiritStore((s) => s.setSpirits);
   const addSpiritToArchive = useSpiritArchiveStore((s) => s.addSpirit);
+  if (showStorage) return null;
 
   const handleSummon = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -29,7 +29,7 @@ export const SpiritAtelier: React.FC = () => {
       const [a, b] = all.sort(() => 0.5 - Math.random()).slice(0, 2)
       const gossip = await spiritGossip(a, b)
       if (gossip) {
-        setGossip({ ...gossip, text: gossip.question })
+        setGossip(gossip)
         setTimeout(() => setGossip(null), 60000)
       }
     }, 30000)

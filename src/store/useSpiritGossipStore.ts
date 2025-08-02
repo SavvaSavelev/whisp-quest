@@ -4,7 +4,9 @@ import { Spirit } from "../entities/types";
 export interface SpiritGossip {
   from: Spirit;
   to: Spirit;
-  text: string;
+  text?: string;
+  question?: string;
+  answer?: string;
 }
 
 interface SpiritGossipStore {
