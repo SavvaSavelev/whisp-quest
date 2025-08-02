@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.4.2",
@@ -40,6 +42,9 @@
     "@eslint/js": "^9.21.0",
     "@tailwindcss/postcss": "^4.1.4",
     "@tailwindcss/vite": "^4.1.4",
+    "@testing-library/jest-dom": "^6.6.4",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/date-fns": "^2.5.3",
     "@types/jest": "^30.0.0",
     "@types/react": "^19.0.10",
@@ -52,7 +57,10 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
+    "jest-transform-stub": "^2.0.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.1.4",
     "ts-jest": "^29.4.0",
