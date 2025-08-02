@@ -6,12 +6,15 @@ import { DiaryPage } from './components/UI/DiaryPage';
 import { GossipBar } from './components/UI/GossipBar';
 import { useInitAssets, useResetGossipOnStorage } from './usecases';
 import { SpiritStorageModal } from "./components/UI/SpiritStorageModal";
-import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 import { AppLoader } from './components/UI/AppLoader';
+import { DebugPanel } from './components/Debug/DebugPanel';
+import { AppProviders } from './providers';
+import { useAppStore } from './store/appStore';
 
 function App() {
   const showStorage = useUIStore(state => state.showStorage);
   const setShowStorage = useUIStore(state => state.setShowStorage);
+  const debugMode = useAppStore(state => state.debugMode);
   const ready = useInitAssets();
   const [appProgress, setAppProgress] = useState(0);
   
@@ -36,21 +39,27 @@ function App() {
   // Показываем AppLoader пока приложение не готово
   if (!ready) {
     return (
-      <AppLoader 
-        isVisible={true}
-        progress={appProgress}
-        message={
-          appProgress < 30 ? "Инициализирую мир духов..." :
-          appProgress < 60 ? "Загружаю текстуры..." :
-          appProgress < 90 ? "Подготавливаю сцену..." :
-          "Почти готово..."
-        }
-      />
+      <AppProviders config={{ debugMode: import.meta.env.DEV }}>
+        <AppLoader 
+          isVisible={true}
+          progress={appProgress}
+          message={
+            appProgress < 30 ? "Инициализирую мир духов..." :
+            appProgress < 60 ? "Загружаю текстуры..." :
+            appProgress < 90 ? "Подготавливаю сцену..." :
+            "Почти готово..."
+          }
+        />
+      </AppProviders>
     );
   }
 
   return (
-    <ErrorBoundary>
+    <AppProviders config={{ 
+      debugMode: import.meta.env.DEV,
+      theme: 'dark',
+      enableAnalytics: import.meta.env.PROD 
+    }}>
       <div className="relative w-screen h-screen overflow-hidden">
         <SpiritStorageModal show={showStorage} onClose={() => setShowStorage(false)} />
         <Suspense fallback={<div className="absolute inset-0 flex items-center justify-center text-indigo-400 text-xl">Загрузка сцены...</div>}>
@@ -65,8 +74,13 @@ function App() {
         >
           ХРАНИЛИЩЕ
         </button>
+        
+        {/* Debug Panel - показываем только в режиме разработки или если включен debug mode */}
+        {(import.meta.env.DEV || debugMode) && (
+          <DebugPanel isVisible={true} position="bottom-right" />
+        )}
       </div>
-    </ErrorBoundary>
+    </AppProviders>
   );
 }
 
