@@ -1,4 +1,4 @@
-import { BackgroundRoom } from './BackgroundRoom'
+import { UltraBackground } from './UltraBackground'
 // src/components/Atelier/SpiritAtelier.tsx
 import React, { useEffect, useMemo, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
@@ -51,22 +51,28 @@ export const SpiritAtelier: React.FC = () => {
 
   return (
     <div className="w-screen h-screen relative overflow-hidden">
+      {/* УЛЬТРА КРУТОЙ фон */}
+      <UltraBackground />
+      
       <Canvas
         camera={{ position: [0, 0, 22], fov: 45 }}
-        // чистим в чёрный вместо белого
-        gl={{ alpha: false, antialias: true }}
-        style={{ background: 'transparent' }}
+        gl={{ alpha: true, antialias: true }}
+        style={{ 
+          background: 'transparent',
+          position: 'relative',
+          zIndex: 10
+        }}
       >
         <Suspense fallback={null}>
-          {/* Фон комнаты с текстурой */}
-          <BackgroundRoom />
-          {/* Духи */}
+          {/* Духи без старого фона */}
           {rendered}
         </Suspense>
 
-        {/* Освещение */}
-        <ambientLight intensity={0.6} />
-        <pointLight position={[10, 10, 10]} intensity={1.5} />
+        {/* Мягкое освещение для духов */}
+        <ambientLight intensity={0.8} />
+        <pointLight position={[10, 10, 10]} intensity={0.5} color="#ffffff" />
+        <pointLight position={[-10, -10, 5]} intensity={0.3} color="#8b5cf6" />
+        <pointLight position={[0, 10, -5]} intensity={0.3} color="#3b82f6" />
       </Canvas>
 
       {/* Нижняя панель диалога */}
