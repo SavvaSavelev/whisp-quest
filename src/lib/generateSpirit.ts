@@ -1,31 +1,52 @@
 import { Spirit } from '../entities/types';
 import { randomPositionInRoom } from './randomPositionInRoom';
+import { apiClient } from './APIClient';
 
 /**
- * Анализирует текст и создаёт объект духа.
+ * Анализирует текст через whisp-server с OpenAI и создаёт объект духа.
  * Заметьте: теперь эта функция НЕ помещает духа в архив.
  */
 export const generateSpirit = async (text: string): Promise<Spirit | null> => {
-  const response = await fetch('http://localhost:4000/analyze', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text }),
-  });
+  try {
+    if (!text.trim()) {
+      throw new Error('Текст не может быть пустым');
+    }
 
-  const spiritData = await response.json();
+    // Используем API клиент для анализа через ваш whisp-server
+    const analysis = await apiClient.analyzeSentiment(text);
+    
+    // Генерируем имя духа на основе настроения
+    const spiritNames = {
+      радостный: ['Радостный', 'Светлый', 'Веселый', 'Ликующий', 'Сияющий'],
+      печальный: ['Грустный', 'Печальный', 'Тоскующий', 'Унылый', 'Меланхоличный'],
+      злой: ['Гневный', 'Яростный', 'Разъяренный', 'Бушующий', 'Неистовый'],
+      спокойный: ['Спокойный', 'Безмятежный', 'Умиротворенный', 'Тихий', 'Мирный'],
+      вдохновлённый: ['Вдохновенный', 'Творческий', 'Озаренный', 'Воодушевленный', 'Мечтательный'],
+      сонный: ['Дремлющий', 'Сонный', 'Засыпающий', 'Дремотный', 'Туманный'],
+      испуганный: ['Пугливый', 'Трепещущий', 'Боязливый', 'Настороженный', 'Робкий'],
+      игривый: ['Игривый', 'Шаловливый', 'Проказливый', 'Озорной', 'Весёлый'],
+      меланхоличный: ['Меланхоличный', 'Задумчивый', 'Ностальгичный', 'Мечтательный', 'Томный']
+    };
+    
+    const moodNames = spiritNames[analysis.mood as keyof typeof spiritNames] || spiritNames.спокойный;
+    const randomName = moodNames[Math.floor(Math.random() * moodNames.length)];
+    
+    const spirit: Spirit = {
+      id: crypto.randomUUID(),
+      name: `${randomName} дух`,
+      mood: analysis.mood,
+      color: analysis.color || '#ffffff',
+      rarity: analysis.rarity || 'обычный',
+      essence: analysis.essence || 'Непознанная сущность',
+      dialogue: analysis.dialogue || 'Я был рождён из тишины...',
+      originText: text,
+      position: randomPositionInRoom(),
+      birthDate: new Date().toISOString(),
+    };
 
-  const spirit: Spirit = {
-    id: crypto.randomUUID(),
-    name: spiritData.essence || 'Безымянный дух',
-    mood: spiritData.mood,
-    color: spiritData.color || '#ffffff',
-    rarity: spiritData.rarity || 'обычный',
-    essence: spiritData.essence || 'Непознанная сущность',
-    dialogue: spiritData.dialogue || 'Я был рождён из тишины...',
-    originText: text,
-    position: randomPositionInRoom(),
-    birthDate: new Date().toISOString(),
-  };
-
-  return spirit;
+    return spirit;
+  } catch (error) {
+    console.error('❌ Ошибка генерации духа:', error);
+    throw error;
+  }
 };

@@ -153,7 +153,7 @@ const CardFooter: React.FC<CardFooterProps> = ({ children, className = '' }) => 
 );
 
 // Compound компонент Card
-export const Card = {
+const Card = {
   Root: CardRoot,
   Header: CardHeader,
   Body: CardBody,
@@ -161,7 +161,7 @@ export const Card = {
 };
 
 // Пример использования для Storybook или документации
-export const CardExample: React.FC = () => (
+const CardExample: React.FC = () => (
   <div style={{ padding: tokens.spacing.xl, display: 'grid', gap: tokens.spacing.lg, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
     {/* Стандартная карточка */}
     <Card.Root variant="default">
@@ -199,5 +199,7 @@ export const CardExample: React.FC = () => (
     </Card.Root>
   </div>
 );
+
+export { Card, CardExample };
 
 export default Card;
