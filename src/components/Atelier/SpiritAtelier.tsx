@@ -76,3 +76,5 @@ export const SpiritAtelier: React.FC = () => {
     </div>
   )
 }
+
+export default SpiritAtelier;
