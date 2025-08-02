@@ -1,5 +1,5 @@
 import { useUIStore } from './store/uiStore';
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useState, useEffect } from 'react';
 const SpiritAtelier = lazy(() => import('./components/Atelier/SpiritAtelier'));
 import { SpiritDialogueModal } from './components/UI/SpiritDialogueModal';
 import { DiaryPage } from './components/UI/DiaryPage';
@@ -7,13 +7,47 @@ import { GossipBar } from './components/UI/GossipBar';
 import { useInitAssets, useResetGossipOnStorage } from './usecases';
 import { SpiritStorageModal } from "./components/UI/SpiritStorageModal";
 import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
+import { AppLoader } from './components/UI/AppLoader';
 
 function App() {
   const showStorage = useUIStore(state => state.showStorage);
   const setShowStorage = useUIStore(state => state.setShowStorage);
   const ready = useInitAssets();
+  const [appProgress, setAppProgress] = useState(0);
+  
   useResetGossipOnStorage(showStorage);
-  if (!ready) return null;
+
+  // Симуляция загрузки приложения
+  useEffect(() => {
+    if (!ready) {
+      const interval = setInterval(() => {
+        setAppProgress(prev => {
+          const next = prev + Math.random() * 15;
+          return next >= 95 ? 95 : next;
+        });
+      }, 200);
+
+      return () => clearInterval(interval);
+    } else {
+      setAppProgress(100);
+    }
+  }, [ready]);
+
+  // Показываем AppLoader пока приложение не готово
+  if (!ready) {
+    return (
+      <AppLoader 
+        isVisible={true}
+        progress={appProgress}
+        message={
+          appProgress < 30 ? "Инициализирую мир духов..." :
+          appProgress < 60 ? "Загружаю текстуры..." :
+          appProgress < 90 ? "Подготавливаю сцену..." :
+          "Почти готово..."
+        }
+      />
+    );
+  }
 
   return (
     <ErrorBoundary>
