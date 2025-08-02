@@ -1,3 +1,4 @@
+import { BackgroundRoom } from './BackgroundRoom'
 // src/components/Atelier/SpiritAtelier.tsx
 import React, { useEffect, useMemo, Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
@@ -6,7 +7,6 @@ import { useSpiritArchiveStore } from '../../store/useSpiritArchiveStore'
 import { useSpiritGossipStore } from '../../store/useSpiritGossipStore'
 import { TexturedSpiritSprite } from './SpiritOrb'
 import { spiritGossip } from '../../lib/spiritGossip'
-import { BackgroundRoom } from './BackgroundRoom'
 import { GossipBar } from '../UI/GossipBar'
 import { SpiritArchiveBar } from '../UI/SpiritArchiveBar'
 
@@ -50,8 +50,7 @@ export const SpiritAtelier: React.FC = () => {
   )
 
   return (
-    // фон контейнера всегда чёрный
-    <div className="w-screen h-screen relative bg-black">
+    <div className="w-screen h-screen relative overflow-hidden">
       <Canvas
         camera={{ position: [0, 0, 22], fov: 45 }}
         // чистим в чёрный вместо белого
@@ -59,7 +58,7 @@ export const SpiritAtelier: React.FC = () => {
         style={{ background: 'transparent' }}
       >
         <Suspense fallback={null}>
-          {/* Статичный фон */}
+          {/* Фон комнаты с текстурой */}
           <BackgroundRoom />
           {/* Духи */}
           {rendered}
