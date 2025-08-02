@@ -8,8 +8,8 @@ export const GossipBar = () => {
 
   // Собираем две «SMS» в массив, чтобы потом map
   const messages = [
-    { spirit: gossip.from, text: gossip.question },
-    { spirit: gossip.to,   text: gossip.answer   },
+    { spirit: gossip.from, text: gossip.text },
+    { spirit: gossip.to,   text: gossip.text },
   ]
 
   return (

@@ -55,7 +55,7 @@ export const SpiritAtelier: React.FC = () => {
       <Canvas
         camera={{ position: [0, 0, 22], fov: 45 }}
         // чистим в чёрный вместо белого
-        gl={{ alpha: false, antialias: true, clearColor: '#000000' }}
+        gl={{ alpha: false, antialias: true }}
         style={{ background: 'transparent' }}
       >
         <Suspense fallback={null}>
