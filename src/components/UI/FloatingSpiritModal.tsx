@@ -7,10 +7,10 @@ const FloatingSpiritModal = ({ count = 5 }) => {
       {Array.from({ length: count }).map((_, i) => (
         <motion.img
           key={i}
-          src={"/textures/face-happy.png"}
+          src={"/whisp-quest/textures/face-happy.png"}
           alt="spirit"
           className="absolute w-10 h-10 drop-shadow-lg opacity-80"
-          style={{ left: `${10 + i * 18}%`, top: 0 }}
+          style={{ left: `${10 + i * 18}%`, top: '0px' } as React.CSSProperties}
           initial={{ y: -60, opacity: 0, scale: 0.7 }}
           animate={{ y: 60 + Math.random() * 40, opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}

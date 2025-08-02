@@ -1,12 +1,11 @@
 import { TextureLoader } from "three";
 
 const textures = [
-  "/textures/face-happy.png",
-  "/textures/face-sad.png",
-  "/textures/face-angry.png",
-  "/textures/face-inspired.png",
-  "/textures/face-acceptance.png",
-  "/textures/face-.png"
+  "/whisp-quest/textures/face-happy.png",
+  "/whisp-quest/textures/face-sad.png",
+  "/whisp-quest/textures/face-angry.png",
+  "/whisp-quest/textures/face-inspired.png",
+  "/whisp-quest/textures/face-acceptance.png",
 ];
 
 export const preloadAllTextures = () => {

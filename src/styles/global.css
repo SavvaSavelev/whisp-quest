@@ -8,7 +8,7 @@
   backdrop-filter: blur(16px);
 }
 .theme-stars {
-  background: #18181b url('/assets/bg/atelier-bg.png') repeat center center;
+  background: #18181b url('/whisp-quest/assets/bg/atelier-bg.png') repeat center center;
   background-size: cover;
   backdrop-filter: blur(8px);
 }

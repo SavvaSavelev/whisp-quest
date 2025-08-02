@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useLoader } from "@react-three/fiber";
 import { TextureLoader } from "three";
 import { Spirit } from "../../entities/types";
 import { useSpiritModalStore } from "../../store/useSpiritModalStore";
 import { useSpiritGossipStore } from "../../store/useSpiritGossipStore";
-import { moodToTexture } from "../../lib/getMoodTexture";
+import { getMoodTexture } from "../../lib/getMoodTexture";
 
 interface Props {
   spirit: Spirit;
@@ -15,8 +16,8 @@ interface Props {
 
 export const TexturedSpiritSprite: React.FC<Props> = ({ spirit, position, size = 1.5 }) => {
   const ref = useRef<THREE.Sprite>(null);
-  const texture = new TextureLoader().load(moodToTexture[spirit.mood]);
-  const { setSpirit } = useSpiritModalStore();
+  const texture = useLoader(TextureLoader, getMoodTexture(spirit.mood));
+  const { openModal } = useSpiritModalStore();
   const gossip = useSpiritGossipStore((s) => s.currentGossip);
 
   // Мемоизируем исходную позицию, чтобы её объект не пересоздавался при каждом рендере
@@ -52,7 +53,7 @@ export const TexturedSpiritSprite: React.FC<Props> = ({ spirit, position, size =
       scale={[size, size, 1]}
       onClick={(e) => {
         e.stopPropagation();
-        setSpirit(spirit);
+        openModal(spirit);
       }}
     >
       <spriteMaterial attach="material" map={texture} transparent />

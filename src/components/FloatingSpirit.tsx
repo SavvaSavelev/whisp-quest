@@ -6,7 +6,7 @@ import { useLoader } from "@react-three/fiber";
 
 const FloatingSpirit = () => {
   const ref = useRef<Sprite>(null);
-  const texture = useLoader(TextureLoader, "/textures/face-happy.png");
+  const texture = useLoader(TextureLoader, "/whisp-quest/textures/face-happy.png");
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
