@@ -6,7 +6,7 @@ type ConstellationStore = {
   clear: () => void;
 };
 
-export const useConstellationStore = create<ConstellationStore>((set, get) => ({
+export const useConstellationStore = create<ConstellationStore>((set) => ({
   selected: null,
   select: (name) =>
     set((state) => ({
