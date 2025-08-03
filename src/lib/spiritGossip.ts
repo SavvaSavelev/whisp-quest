@@ -2,7 +2,7 @@ import { Spirit } from "../entities/types";
 
 export const spiritGossip = async (from: Spirit, to: Spirit) => {
   try {
-    const res = await fetch("http://localhost:4000/spirit-gossip", {
+    const res = await fetch("http://localhost:3001/spirit-gossip", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -46,7 +46,7 @@ export async function generateSpiritGossip(params: {
   };
 }): Promise<{ question: string; answer: string }> {
   try {
-    const response = await fetch('http://localhost:4000/spirit-gossip', {
+    const response = await fetch('http://localhost:3001/spirit-gossip', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

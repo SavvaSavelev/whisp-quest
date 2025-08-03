@@ -12,7 +12,7 @@ interface CacheItem<T = unknown> {
 class APIClient {
   private static instance: APIClient;
   private cache = new Map<string, CacheItem>();
-  private readonly baseURL = 'http://localhost:4000';
+  private readonly baseURL = 'http://localhost:3001';
   
   static getInstance(): APIClient {
     if (!APIClient.instance) {
