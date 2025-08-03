@@ -141,9 +141,10 @@ export class ErrorService implements IErrorService {
 }
 
 export class GossipService implements IGossipService {
-  constructor(private container: IServiceContainer) {
+  // constructor принимает контейнер для будущего использования
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  constructor(_container: IServiceContainer) {
     // Контейнер может быть использован в будущем для доступа к другим сервисам
-    // Например: this.container.analyticsService.trackEvent('gossip_generated');
   }
 
   async generateGossip(spirits: Spirit[]): Promise<string> {

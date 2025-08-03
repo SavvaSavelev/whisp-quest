@@ -1,67 +1,44 @@
-import React from 'react';
+import React, { createContext, useContext, useCallback, useRef } from 'react';
 
-// Провайдер производительности
-const PerformanceContext = React.createContext<{
+export interface PerformanceMetrics {
   startMeasure: (name: string) => void;
   endMeasure: (name: string) => number;
-  measureComponent: <T extends Record<string, unknown>>(
-    Component: React.ComponentType<T>
-  ) => React.ComponentType<T>;
-}>({
-  startMeasure: () => {},
-  endMeasure: () => 0,
-  measureComponent: (Component) => Component,
-});
+  measureComponent: <T extends Record<string, unknown>>(Component: React.ComponentType<T>) => React.ComponentType<T>;
+}
 
-// Хук для измерения производительности
+const PerformanceContext = createContext<PerformanceMetrics | null>(null);
+
 export const usePerformance = () => {
-  const context = React.useContext(PerformanceContext);
+  const context = useContext(PerformanceContext);
   if (!context) {
     throw new Error('usePerformance must be used within PerformanceProvider');
   }
   return context;
 };
 
-// Хук для измерения времени выполнения функций
 export const useMeasure = () => {
-  const { startMeasure, endMeasure } = usePerformance();
-
-  return React.useCallback(
-    async <T,>(name: string, fn: () => Promise<T> | T): Promise<T> => {
-      startMeasure(name);
-      try {
-        const result = await fn();
-        return result;
-      } finally {
-        endMeasure(name);
-      }
-    },
-    [startMeasure, endMeasure]
-  );
+  const startTime = useRef<number>(0);
+  
+  const start = useCallback(() => {
+    startTime.current = performance.now();
+  }, []);
+  
+  const end = useCallback(() => {
+    return performance.now() - startTime.current;
+  }, []);
+  
+  return { start, end };
 };
 
-// Хук для отслеживания ререндеров компонента
-export const useRenderTracker = (componentName: string) => {
-  const renderCount = React.useRef(0);
-  const { startMeasure, endMeasure } = usePerformance();
-
-  React.useEffect(() => {
+export const useRenderTracker = () => {
+  const renderCount = useRef(0);
+  
+  const track = useCallback(() => {
     renderCount.current += 1;
-    const measureName = `${componentName}-render-${renderCount.current}`;
-    startMeasure(measureName);
-    
-    return () => {
-      endMeasure(measureName);
-    };
-  });
-
-  React.useEffect(() => {
-    if (import.meta.env.DEV && renderCount.current > 10) {
-      console.warn(`[Render Tracker] ${componentName} has rendered ${renderCount.current} times`);
-    }
-  });
-
-  return renderCount.current;
+    return renderCount.current;
+  }, []);
+  
+  return track;
 };
 
 export default PerformanceContext;

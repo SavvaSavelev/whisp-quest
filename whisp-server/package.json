@@ -7,10 +7,8 @@
   "scripts": {
     "start": "node server-optimized.js",
     "dev": "node --watch server-optimized.js",
-    "legacy": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "health": "curl http://localhost:3001/health",
-    "logs": "tail -f logs/app.log"
+    "health": "curl http://localhost:3001/health"
   },
   "keywords": [
     "express",

@@ -10,6 +10,9 @@ export const AppConfigProvider: React.FC<{
   config?: Partial<AppConfig>;
 }> = ({ children, config = {} }) => {
   const defaultConfig: AppConfig = {
+    apiBaseUrl: 'http://localhost:3001',
+    debug: import.meta.env.DEV,
+    version: '1.0.0',
     theme: 'dark',
     debugMode: import.meta.env.DEV,
     enableAnalytics: import.meta.env.PROD,

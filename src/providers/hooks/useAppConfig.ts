@@ -1,24 +1,19 @@
-import React from 'react';
+import { createContext, useContext } from 'react';
 
-// Тип для конфигурации приложения
 export interface AppConfig {
-  theme: 'dark' | 'light' | 'auto';
+  apiBaseUrl: string;
+  debug: boolean;
+  version: string;
+  theme: string;
   debugMode: boolean;
   enableAnalytics: boolean;
   enableErrorReporting: boolean;
 }
 
-// Контекст конфигурации
-const AppConfigContext = React.createContext<AppConfig>({
-  theme: 'dark',
-  debugMode: import.meta.env.DEV,
-  enableAnalytics: import.meta.env.PROD,
-  enableErrorReporting: import.meta.env.PROD,
-});
+const AppConfigContext = createContext<AppConfig | null>(null);
 
-// Хук для использования конфигурации
 export const useAppConfig = () => {
-  const context = React.useContext(AppConfigContext);
+  const context = useContext(AppConfigContext);
   if (!context) {
     throw new Error('useAppConfig must be used within AppConfigProvider');
   }
