@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server-optimized.js",
     "dev": "node --watch server-optimized.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest api.test.js",
     "health": "curl http://localhost:3001/health"
   },
   "keywords": [
@@ -34,5 +34,10 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.0.5",
+    "jest": "^30.0.5",
+    "supertest": "^7.1.4"
   }
 }

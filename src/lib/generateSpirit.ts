@@ -47,6 +47,6 @@ export const generateSpirit = async (text: string): Promise<Spirit | null> => {
     return spirit;
   } catch (error) {
     console.error('❌ Ошибка генерации духа:', error);
-    throw error;
+    return null;
   }
 };
