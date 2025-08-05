@@ -48,9 +48,8 @@ jobs:
           CI: true
           
       - name: 🧪 Run Tests (Backend)
-        run: |
-          cd whisp-server
-          npm test
+        working-directory: ./whisp-server
+        run: npm test
         env:
           CI: true
           

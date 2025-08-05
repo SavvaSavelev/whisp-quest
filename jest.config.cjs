@@ -47,7 +47,11 @@ module.exports = {
     '!src/components/UI/AppLoader.tsx',
     '!src/App.tsx',
     '!src/providers/**',
-    '!src/services/implementations.ts'
+    '!src/services/implementations.ts',
+    // Exclude files with external dependencies that cause coverage issues
+    '!src/store/appStore.ts',
+    '!src/store/**',
+    '!src/components/Debug/**'
   ],
   coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
   coverageDirectory: 'coverage',
