@@ -1,0 +1,341 @@
+name: 🚀 Deploy to Production
+
+on:
+  push:
+    branches: [ master ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment (ignore checks)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # 🏗️ Build and Verify Production Build
+  build-production:
+    name: 🏗️ Build Production
+    runs-on: ubuntu-latest
+    
+    outputs:
+      build-success: ${{ steps.build.outcome }}
+      build-hash: ${{ steps.hash.outputs.hash }}
+      
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📦 Install Dependencies
+        run: npm ci
+        
+      - name: 🔍 Type Check
+        run: npm run type-check
+        
+      - name: 🧪 Run Tests
+        run: npm run test:ci
+        env:
+          CI: true
+          
+      - name: 🏗️ Build Production
+        id: build
+        run: npm run build
+        env:
+          NODE_ENV: production
+          
+      - name: 🔒 Generate Build Hash
+        id: hash
+        run: |
+          BUILD_HASH=$(find dist -type f -exec sha256sum {} \; | sort | sha256sum | cut -d' ' -f1 | cut -c1-8)
+          echo "hash=${BUILD_HASH}" >> $GITHUB_OUTPUT
+          echo "📝 Build hash: ${BUILD_HASH}"
+          
+      - name: ✅ Verify Build Output
+        run: |
+          echo "🔍 Verifying build output..."
+          
+          if [ ! -d "dist" ]; then
+            echo "❌ Build failed: dist directory not found"
+            exit 1
+          fi
+          
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ Build failed: index.html not found"
+            exit 1
+          fi
+          
+          if [ ! -d "dist/assets" ]; then
+            echo "❌ Build failed: assets directory not found"
+            exit 1
+          fi
+          
+          echo "✅ Build verification passed"
+          echo "📁 Build output:"
+          ls -la dist/
+          echo "📊 Build size:"
+          du -sh dist/
+          
+      - name: 📤 Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build-${{ steps.hash.outputs.hash }}
+          path: dist/
+          retention-days: 30
+
+  # 🚀 Deploy to GitHub Pages
+  deploy-github-pages:
+    name: 🌐 Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build-production
+    if: github.ref == 'refs/heads/master' && needs.build-production.outputs.build-success == 'success'
+    
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+      
+    steps:
+      - name: 📥 Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build-${{ needs.build-production.outputs.build-hash }}
+          path: dist/
+          
+      - name: 📄 Setup Pages
+        uses: actions/configure-pages@v4
+        with:
+          enablement: true
+        continue-on-error: true
+        id: setup-pages
+        
+      - name: 📤 Upload Pages Artifact
+        if: steps.setup-pages.outcome == 'success'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+          
+      - name: 🚀 Deploy to GitHub Pages
+        if: steps.setup-pages.outcome == 'success'
+        id: deployment
+        uses: actions/deploy-pages@v4
+        
+      - name: ✅ Deployment Success
+        if: steps.setup-pages.outcome == 'success'
+        run: |
+          echo "🎉 Deployment successful!"
+          echo "🌐 Site URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "📝 Build hash: ${{ needs.build-production.outputs.build-hash }}"
+          echo "🕒 Deployed at: $(date)"
+          
+      - name: ⚠️ Pages Setup Notice
+        if: steps.setup-pages.outcome == 'failure'
+        run: |
+          echo "::warning::GitHub Pages is not enabled for this repository."
+          echo "::notice::Please enable Pages in repository Settings > Pages > Source: GitHub Actions"
+          echo "::notice::The build completed successfully, but Pages deployment was skipped."
+          echo "::notice::Manual setup required - see PAGES_SETUP.md for instructions"
+
+  # 📦 Create Release Artifacts
+  build-release-artifacts:
+    name: 📦 Build Release Artifacts
+    runs-on: ubuntu-latest
+    needs: build-production
+    if: needs.build-production.outputs.build-success == 'success'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📥 Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build-${{ needs.build-production.outputs.build-hash }}
+          path: dist/
+          
+      - name: 📦 Install Backend Dependencies
+        run: |
+          cd whisp-server
+          npm ci --production
+          
+      - name: 🔧 Prepare Backend for Production
+        run: |
+          cd whisp-server
+          # Remove dev dependencies and clean up
+          rm -rf node_modules/.cache
+          find node_modules -name "*.md" -delete
+          find node_modules -name "test" -type d -exec rm -rf {} + 2>/dev/null || true
+          find node_modules -name "tests" -type d -exec rm -rf {} + 2>/dev/null || true
+          
+      - name: 📁 Create Release Archive
+        id: create-archive
+        run: |
+          mkdir -p release
+          
+          # Copy frontend build
+          cp -r dist/ release/frontend/
+          
+          # Copy backend with production dependencies
+          cp -r whisp-server/ release/backend/
+          
+          # Copy project files
+          cp package.json release/
+          cp README.md release/
+          cp DEPLOYMENT_FIX.md release/ 2>/dev/null || true
+          cp PAGES_SETUP.md release/ 2>/dev/null || true
+          
+          # Determine version for archive name
+          if [ "${{ github.event_name }}" == "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+          else
+            VERSION="master-$(date +'%Y%m%d')-${{ needs.build-production.outputs.build-hash }}"
+          fi
+          
+          # Create deployment instructions
+          cat > release/DEPLOY_INSTRUCTIONS.md << EOF
+          # 🚀 Whisp Quest Deployment Instructions
+          
+          ## 📁 Archive Contents:
+          - \`frontend/\` - Built React application (ready for static hosting)
+          - \`backend/\` - Express.js API server with production dependencies
+          - \`package.json\` - Project configuration
+          - \`README.md\` - Project documentation
+          
+          ## 🌐 Frontend Deployment (Static Hosting):
+          The \`frontend/\` folder contains a fully built React application that can be deployed to:
+          - GitHub Pages
+          - Netlify
+          - Vercel
+          - Any static file server
+          
+          ## 🖥️ Backend Deployment (Node.js Server):
+          \`\`\`bash
+          cd backend/
+          npm start
+          # Server will run on port 3001
+          \`\`\`
+          
+          ## 🔧 Environment Setup:
+          Make sure to set these environment variables for the backend:
+          - \`OPENAI_API_KEY\` - Your OpenAI API key
+          - \`PORT\` - Server port (default: 3001)
+          - \`NODE_ENV\` - Set to 'production'
+          
+          ## 📊 Build Info:
+          - Build Hash: ${{ needs.build-production.outputs.build-hash }}
+          - Build Date: $(date)
+          - Git Commit: ${{ github.sha }}
+          EOF
+          
+          # Create compressed archive
+          tar -czf whisp-quest-${VERSION}.tar.gz -C release .
+          
+          echo "📦 Created release archive: whisp-quest-${VERSION}.tar.gz"
+          echo "📊 Archive contents:"
+          tar -tzf whisp-quest-${VERSION}.tar.gz | head -20
+          echo "💾 Archive size: $(ls -lh whisp-quest-${VERSION}.tar.gz | cut -d' ' -f5)"
+          
+          # Save version for later steps  
+          echo "release_version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "archive_name=whisp-quest-${VERSION}.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: 📤 Upload Release Artifact (Master Builds)
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-archive-${{ steps.create-archive.outputs.release_version }}
+          path: whisp-quest-*.tar.gz
+          retention-days: 90
+          
+      - name: 📝 Release Summary (Master)
+        if: github.event_name != 'release'
+        run: |
+          echo "## 📦 Release Artifact Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** \`${{ steps.create-archive.outputs.release_version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Hash:** \`${{ needs.build-production.outputs.build-hash }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Archive:** \`${{ steps.create-archive.outputs.archive_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📁 Archive Contents:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Frontend build (React app)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Backend server (Express API)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Production dependencies" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Deployment instructions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📥 **Download:** Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+          
+      - name: 📤 Upload Release Asset (Official Releases)
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./${{ steps.create-archive.outputs.archive_name }}
+          asset_name: ${{ steps.create-archive.outputs.archive_name }}
+          asset_content_type: application/gzip
+
+  # 📊 Deployment Summary
+  deployment-summary:
+    name: 📊 Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [build-production, deploy-github-pages, build-release-artifacts]
+    if: always() && needs.build-production.outputs.build-success == 'success'
+    
+    steps:
+      - name: 📋 Generate Deployment Report
+        run: |
+          echo "# 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Hash:** \`${{ needs.build-production.outputs.build-hash }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** \`$(date)\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Build status
+          echo "## 🏗️ Build Status" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Production Build:** Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Pages deployment status
+          echo "## 🌐 GitHub Pages Deployment" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.deploy-github-pages.result }}" == "success" ]; then
+            echo "✅ **Status:** Deployed successfully" >> $GITHUB_STEP_SUMMARY
+            echo "🔗 **URL:** https://savvasavelev.github.io/whisp-quest" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.deploy-github-pages.result }}" == "skipped" ]; then
+            echo "⏭️ **Status:** Skipped (Pages not enabled)" >> $GITHUB_STEP_SUMMARY
+            echo "💡 **Action:** Enable Pages in repository settings" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status:** Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Release artifacts status
+          echo "## 📦 Release Artifacts" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.build-release-artifacts.result }}" == "success" ]; then
+            echo "✅ **Status:** Created successfully" >> $GITHUB_STEP_SUMMARY
+            echo "📥 **Download:** Available in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status:** Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## 🎯 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- 🌐 Visit your deployed site" >> $GITHUB_STEP_SUMMARY
+          echo "- 📦 Download release artifacts if needed" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔍 Check deployment logs for any issues" >> $GITHUB_STEP_SUMMARY
