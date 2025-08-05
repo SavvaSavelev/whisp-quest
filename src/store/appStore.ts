@@ -53,7 +53,7 @@ export const useAppStore = create<AppStore>()(
       // App state
       isLoading: false,
       error: null,
-      debugMode: process.env.NODE_ENV === 'development',
+      debugMode: import.meta.env.DEV,
       setLoading: (isLoading) => set({ isLoading }),
       setError: (error) => set({ error }),
       toggleDebugMode: () => set((state) => ({ debugMode: !state.debugMode })),
