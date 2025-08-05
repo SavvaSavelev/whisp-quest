@@ -1,22 +1,22 @@
 // src/components/UI/SpiritVault.tsx
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { format } from 'date-fns';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getMoodTexture } from '../../lib/getMoodTexture';
 import { useSpiritArchiveStore } from '../../store/useSpiritArchiveStore';
 import { useSpiritModalStore } from '../../store/useSpiritModalStore';
-import { getMoodTexture } from '../../lib/getMoodTexture';
-import { format } from 'date-fns';
 import { SpiritConstellation } from './SpiritConstellation';
 
 interface SpiritVaultProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelectSpiritForChat?: (spiritId: string) => void;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly onSelectSpiritForChat?: (spiritId: string) => void;
 }
 
 export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVaultProps) {
   const { spirits, clearArchive } = useSpiritArchiveStore();
   const { openModal } = useSpiritModalStore();
   
-  const [filter, setFilter] = useState<'all' | string>('all');
+  const [filter, setFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'recent' | 'rarity' | 'mood'>('recent');
   const [viewMode, setViewMode] = useState<'galaxy' | 'grid' | 'list' | 'constellations'>('galaxy');
   const [selectedSpirit, setSelectedSpirit] = useState<string | null>(null);
@@ -24,6 +24,24 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
   const [showConnections, setShowConnections] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [favoriteSpirits, setFavoriteSpirits] = useState<Set<string>>(new Set());
+
+  const getViewModeIcon = (mode: string): string => {
+    switch (mode) {
+      case 'galaxy': return '🌌';
+      case 'constellations': return '⭐';
+      case 'grid': return '⊞';
+      default: return '≡';
+    }
+  };
+
+  const getViewModeLabel = (mode: string): string => {
+    switch (mode) {
+      case 'galaxy': return 'Галактика';
+      case 'constellations': return 'Созвездия';
+      case 'grid': return 'Сетка';
+      default: return 'Список';
+    }
+  };
 
   // Звуковые эффекты при взаимодействии
   const playInteractionSound = useCallback((type: 'select' | 'hover' | 'favorite' | 'teleport') => {
@@ -78,7 +96,7 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
         spirit.essence.toLowerCase().includes(query) ||
         spirit.mood.toLowerCase().includes(query) ||
         spirit.rarity.toLowerCase().includes(query) ||
-        (spirit.originText && spirit.originText.toLowerCase().includes(query))
+        (spirit.originText?.toLowerCase().includes(query))
       );
     }
     
@@ -216,9 +234,9 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
           
           {/* Космические звезды на фоне */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(50)].map((_, i) => (
+            {Array.from({ length: 50 }, (_, i) => (
               <div
-                key={i}
+                key={`star-${i}`}
                 className="absolute w-1 h-1 bg-white rounded-full star-twinkle"
                 style={{
                   left: `${Math.random() * 100}%`,
@@ -325,12 +343,7 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                         : 'bg-slate-800/30 text-slate-400 border border-slate-600/30 hover:bg-slate-700/50'
                     }`}
                   >
-                    {mode === 'galaxy' ? '🌌' : 
-                     mode === 'constellations' ? '⭐' :
-                     mode === 'grid' ? '⊞' : '≡'} 
-                    {mode === 'galaxy' ? 'Галактика' : 
-                     mode === 'constellations' ? 'Созвездия' :
-                     mode === 'grid' ? 'Сетка' : 'Список'}
+                    {getViewModeIcon(mode)} {getViewModeLabel(mode)}
                   </button>
                 ))}
               </div>
@@ -456,9 +469,10 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                             const isSelected = selectedSpirit === spirit.id;
                             
                             return (
-                              <div
+                              <button
+                                type="button"
                                 key={spirit.id}
-                                className={`absolute spirit-float spirit-card-hover cursor-pointer ${
+                                className={`absolute spirit-float spirit-card-hover cursor-pointer bg-transparent border-none p-0 ${
                                   isSelected ? 'z-20' : 'z-10'
                                 }`}
                                 style={{
@@ -467,12 +481,8 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                                   transform: `translate(-50%, -50%) scale(${isSelected ? 1.2 : 1})`,
                                   animationDelay: `${index * 0.5}s`
                                 }}
-                                onClick={() => {
-                                  setSelectedSpirit(spirit.id);
-                                  playInteractionSound('select');
-                                  openModal(spirit);
-                                }}
                                 onMouseEnter={() => playInteractionSound('hover')}
+                                aria-label={`Open spirit: ${spirit.essence}`}
                               >
                                 <div className={`relative group ${isSelected ? 'animate-pulse' : ''}`}>
                                   <img
@@ -522,7 +532,7 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                                     {spirit.essence} {isFavorite ? '❤️' : ''}
                                   </div>
                                 </div>
-                              </div>
+                              </button>
                             );
                           })}
                       </div>
@@ -538,9 +548,10 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                             const y = Math.sin(angle * Math.PI / 180) * radius;
                             
                             return (
-                              <div
+                              <button
+                                type="button"
                                 key={spirit.id}
-                                className="absolute spirit-float spirit-card-hover cursor-pointer"
+                                className="absolute spirit-float spirit-card-hover cursor-pointer bg-transparent border-none p-0"
                                 style={{
                                   left: `calc(50% + ${x}px)`,
                                   top: `calc(50% + ${y}px)`,
@@ -548,6 +559,7 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                                   animationDelay: `${index * 0.3}s`
                                 }}
                                 onClick={() => openModal(spirit)}
+                                aria-label={`Open spirit: ${spirit.essence}`}
                               >
                                 <div className="relative group">
                                   <img
@@ -561,7 +573,7 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                                     {spirit.essence}
                                   </div>
                                 </div>
-                              </div>
+                              </button>
                             );
                           })}
                       </div>
@@ -577,9 +589,10 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                             const y = Math.sin(angle * Math.PI / 180) * radius;
                             
                             return (
-                              <div
+                              <button
+                                type="button"
                                 key={spirit.id}
-                                className="absolute spirit-float spirit-card-hover cursor-pointer"
+                                className="absolute spirit-float spirit-card-hover cursor-pointer bg-transparent border-none p-0"
                                 style={{
                                   left: `calc(50% + ${x}px)`,
                                   top: `calc(50% + ${y}px)`,
@@ -587,6 +600,7 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                                   animationDelay: `${index * 0.2}s`
                                 }}
                                 onClick={() => openModal(spirit)}
+                                aria-label={`Open spirit: ${spirit.essence}`}
                               >
                                 <div className="relative group">
                                   <img
@@ -598,7 +612,7 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                                     {spirit.essence}
                                   </div>
                                 </div>
-                              </div>
+                              </button>
                             );
                           })}
                       </div>
@@ -670,10 +684,12 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                 {viewMode === 'grid' && (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                     {filteredSpirits.map((spirit) => (
-                      <div
+                      <button
+                        type="button"
                         key={spirit.id}
-                        className="spirit-card-hover cursor-pointer bg-slate-800/30 backdrop-blur-sm rounded-2xl p-4 border border-slate-600/30 hover:border-slate-400/50 transition-all"
+                        className="spirit-card-hover cursor-pointer bg-slate-800/30 backdrop-blur-sm rounded-2xl p-4 border border-slate-600/30 hover:border-slate-400/50 transition-all text-left w-full"
                         onClick={() => openModal(spirit)}
+                        aria-label={`Open spirit: ${spirit.essence}`}
                       >
                         <div className="text-center">
                           <img
@@ -696,7 +712,7 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                             </p>
                           )}
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -705,10 +721,12 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                 {viewMode === 'list' && (
                   <div className="space-y-4">
                     {filteredSpirits.map((spirit) => (
-                      <div
+                      <button
+                        type="button"
                         key={spirit.id}
-                        className="spirit-card-hover cursor-pointer bg-slate-800/20 backdrop-blur-sm rounded-xl p-4 border border-slate-600/30 hover:border-slate-400/50 transition-all flex items-center gap-4"
+                        className="spirit-card-hover cursor-pointer bg-slate-800/20 backdrop-blur-sm rounded-xl p-4 border border-slate-600/30 hover:border-slate-400/50 transition-all flex items-center gap-4 text-left w-full"
                         onClick={() => openModal(spirit)}
+                        aria-label={`Open spirit: ${spirit.essence}`}
                       >
                         <img
                           src={getMoodTexture(spirit.mood)}
@@ -733,7 +751,7 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
                             <p className="text-slate-400 text-sm mt-2 italic">«{spirit.originText.slice(0, 100)}...»</p>
                           )}
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}

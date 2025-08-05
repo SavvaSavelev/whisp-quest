@@ -1,13 +1,13 @@
 // src/components/UI/SpiritConstellation.tsx
 import { useMemo } from 'react';
-import { getMoodTexture } from '../../lib/getMoodTexture';
 import { Spirit } from '../../entities/types';
+import { getMoodTexture } from '../../lib/getMoodTexture';
 
 interface SpiritConstellationProps {
-  spirits: Spirit[];
-  mood: string;
-  size?: 'small' | 'medium' | 'large';
-  onSpiritClick?: (spirit: Spirit) => void;
+  readonly spirits: Spirit[];
+  readonly mood: string;
+  readonly size?: 'small' | 'medium' | 'large';
+  readonly onSpiritClick?: (spirit: Spirit) => void;
 }
 
 export function SpiritConstellation({ spirits, mood, size = 'medium', onSpiritClick }: SpiritConstellationProps) {
@@ -46,6 +46,12 @@ export function SpiritConstellation({ spirits, mood, size = 'medium', onSpiritCl
     
     return positions;
   }, [spiritsInMood.length]);
+
+  const getSpiritSuffix = (count: number): string => {
+    if (count === 1) return '';
+    if (count < 5) return 'а';
+    return 'ов';
+  };
 
   const sizeClasses = {
     small: 'w-40 h-40',
@@ -105,7 +111,7 @@ export function SpiritConstellation({ spirits, mood, size = 'medium', onSpiritCl
           
           return (
             <line
-              key={`line-${index}`}
+              key={`line-${pos.x}-${pos.y}-${nextPos.x}-${nextPos.y}`}
               x1={`${pos.x}%`}
               y1={`${pos.y}%`}
               x2={`${nextPos.x}%`}
@@ -124,9 +130,10 @@ export function SpiritConstellation({ spirits, mood, size = 'medium', onSpiritCl
         const position = constellationPattern[index] || { x: 50, y: 50 };
         
         return (
-          <div
+          <button
+            type="button"
             key={spirit.id}
-            className="absolute cursor-pointer transition-all hover:scale-110 hover:z-10"
+            className="absolute cursor-pointer transition-all hover:scale-110 hover:z-10 bg-transparent border-none p-0"
             style={{
               left: `${position.x}%`,
               top: `${position.y}%`,
@@ -134,6 +141,7 @@ export function SpiritConstellation({ spirits, mood, size = 'medium', onSpiritCl
               animationDelay: `${index * 0.2}s`
             }}
             onClick={() => onSpiritClick?.(spirit)}
+            aria-label={`Spirit: ${spirit.essence || 'Untitled'}`}
           >
             <div className="relative group/spirit">
               <img
@@ -155,7 +163,7 @@ export function SpiritConstellation({ spirits, mood, size = 'medium', onSpiritCl
                 {spirit.essence}
               </div>
             </div>
-          </div>
+          </button>
         );
       })}
       
@@ -163,7 +171,9 @@ export function SpiritConstellation({ spirits, mood, size = 'medium', onSpiritCl
       <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-center">
         <div className="text-lg">{getMoodEmoji(mood)}</div>
         <div className="text-xs text-gray-400 capitalize">{mood}</div>
-        <div className="text-xs text-gray-500">{spiritsInMood.length} дух{spiritsInMood.length === 1 ? '' : spiritsInMood.length < 5 ? 'а' : 'ов'}</div>
+        <div className="text-xs text-gray-500">
+          {spiritsInMood.length} дух{getSpiritSuffix(spiritsInMood.length)}
+        </div>
       </div>
     </div>
   );

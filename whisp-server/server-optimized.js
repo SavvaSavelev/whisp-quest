@@ -1,10 +1,10 @@
 // Whisp Quest Server v2.0 - Оптимизированная версия
-import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import OpenAI from 'openai';
+import express from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import OpenAI from 'openai';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -384,7 +384,7 @@ ${spiritTo.originText ? `Родился из текста: "${spiritTo.originTex
       
     } catch (parseError) {
       // Если не удалось парсить JSON, возвращаем дефолтную сплетню
-      console.log('⚠️ Не удалось парсить JSON, возвращаем дефолт');
+      console.log('⚠️ Не удалось парсить JSON, возвращаем дефолт:', parseError.message);
       res.json({
         question: 'Что думаешь о нашем хозяине?',
         answer: 'Думаю, ему нужно больше фантазии...',

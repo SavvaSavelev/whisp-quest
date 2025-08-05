@@ -1,0 +1,134 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "dev",
+      "group": "build",
+      "label": "🚀 Start Development Server",
+      "detail": "Запуск сервера разработки с hot reload",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "vite",
+        "pattern": {
+          "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Local:.*http://",
+          "endsPattern": "ready in \\d+ms"
+        }
+      }
+    },
+    {
+      "type": "npm",
+      "script": "build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "label": "🏗️ Build Production",
+      "detail": "Сборка проекта для продакшена",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "type": "npm",
+      "script": "test",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "label": "🧪 Run Tests",
+      "detail": "Запуск всех тестов",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "type": "npm",
+      "script": "test:watch",
+      "group": "test",
+      "label": "👀 Test Watch Mode",
+      "detail": "Запуск тестов в режиме отслеживания",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new"
+      },
+      "isBackground": true
+    },
+    {
+      "type": "npm",
+      "script": "lint",
+      "group": "build",
+      "label": "🔍 Lint Code",
+      "detail": "Проверка кода линтером",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "type": "npm",
+      "script": "lint:fix",
+      "group": "build", 
+      "label": "🔧 Fix Lint Issues",
+      "detail": "Автоматическое исправление проблем линтера",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "type": "npm",
+      "script": "type-check",
+      "group": "build",
+      "label": "📝 TypeScript Check",
+      "detail": "Проверка типов TypeScript",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "type": "shell",
+      "command": "cd whisp-server && npm run dev",
+      "group": "build",
+      "label": "🖥️ Start Backend Server",
+      "detail": "Запуск backend сервера",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new"
+      },
+      "isBackground": true
+    }
+  ]
+}

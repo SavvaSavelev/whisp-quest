@@ -28,8 +28,21 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
+    '!src/vite-env.d.ts',
     '!src/main.tsx',
-    '!src/vite-env.d.ts'
+    '!src/**/*.stories.{ts,tsx}',
+    '!src/**/__tests__/**',
+    '!src/**/*.test.{ts,tsx}'
   ],
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
+  coverageDirectory: 'coverage',
+  coverageThreshold: {
+    global: {
+      branches: 40,
+      functions: 40,
+      lines: 40,
+      statements: 40
+    }
+  },
   extensionsToTreatAsEsm: ['.ts', '.tsx']
 };
