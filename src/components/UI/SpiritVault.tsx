@@ -27,7 +27,7 @@ export function SpiritVault({ isOpen, onClose, onSelectSpiritForChat }: SpiritVa
 
   // Звуковые эффекты при взаимодействии
   const playInteractionSound = useCallback((type: 'select' | 'hover' | 'favorite' | 'teleport') => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     

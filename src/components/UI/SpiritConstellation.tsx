@@ -1,12 +1,13 @@
 // src/components/UI/SpiritConstellation.tsx
 import { useMemo } from 'react';
 import { getMoodTexture } from '../../lib/getMoodTexture';
+import { Spirit } from '../../entities/types';
 
 interface SpiritConstellationProps {
-  spirits: any[];
+  spirits: Spirit[];
   mood: string;
   size?: 'small' | 'medium' | 'large';
-  onSpiritClick?: (spirit: any) => void;
+  onSpiritClick?: (spirit: Spirit) => void;
 }
 
 export function SpiritConstellation({ spirits, mood, size = 'medium', onSpiritClick }: SpiritConstellationProps) {

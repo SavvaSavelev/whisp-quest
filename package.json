@@ -12,18 +12,13 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@huggingface/transformers": "^3.4.2",
     "@react-three/drei": "^10.6.1",
     "@react-three/fiber": "^9.3.0",
     "@sentry/react": "^10.0.0",
-    "@sentry/tracing": "^7.120.4",
     "@tippyjs/react": "^4.2.6",
     "@types/react-window": "^1.8.8",
-    "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
-    "drei": "^2.2.21",
-    "express": "^5.1.0",
     "framer-motion": "^12.23.12",
     "glslify": "^7.1.1",
     "nanoid": "^5.1.5",
@@ -34,8 +29,6 @@
     "react-window": "^1.8.11",
     "three": "^0.175.0",
     "tippy.js": "^6.3.7",
-    "torch": "^0.2.7",
-    "transformers": "^3.1.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
