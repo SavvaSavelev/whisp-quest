@@ -1,0 +1,98 @@
+name: 🔒 Security Audit
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 6:00 UTC
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # 🔍 Security vulnerability scan
+  vulnerability-scan:
+    name: 🔍 Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📦 Install Dependencies (Frontend)
+        run: npm ci
+        
+      - name: 📦 Install Dependencies (Backend)
+        run: |
+          cd whisp-server
+          npm ci
+          
+      - name: 🔍 NPM Audit (Frontend)
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+        
+      - name: 🔍 NPM Audit (Backend)
+        run: |
+          cd whisp-server
+          npm audit --audit-level=moderate
+        continue-on-error: true
+
+  # 🔐 CodeQL analysis
+  codeql-analysis:
+    name: 🔐 CodeQL Analysis
+    runs-on: ubuntu-latest
+    
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+      
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+        
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🔐 Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          
+      - name: 🏗️ Autobuild
+        uses: github/codeql-action/autobuild@v3
+        
+      - name: 🔐 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+
+  # 🔒 Secrets scan  
+  secrets-scan:
+    name: 🔒 Secrets Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: 🔍 TruffleHog OSS
+        id: trufflehog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified

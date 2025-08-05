@@ -22,7 +22,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    
+    /* Add types for Vite */
+    "types": ["vite/client"]
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts", "**/*.test.tsx"]

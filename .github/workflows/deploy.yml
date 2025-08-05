@@ -1,0 +1,100 @@
+name: 🚀 Deploy to Production
+
+on:
+  push:
+    branches: [ master ]
+  release:
+    types: [ published ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # 🚀 Deploy to GitHub Pages
+  deploy-github-pages:
+    name: 🌐 Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+      
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📦 Install Dependencies
+        run: npm ci
+        
+      - name: 🏗️ Build Production
+        run: npm run build
+        env:
+          NODE_ENV: production
+          
+      - name: 📄 Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: 📤 Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+          
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # 📦 Create Release Build
+  build-release:
+    name: 📦 Build Release Artifacts
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: 📦 Install Dependencies (Frontend)
+        run: npm ci
+        
+      - name: 📦 Install Dependencies (Backend)
+        run: |
+          cd whisp-server
+          npm ci
+          
+      - name: 🏗️ Build Frontend
+        run: npm run build
+        env:
+          NODE_ENV: production
+          
+      - name: 📁 Create Release Archive
+        run: |
+          mkdir -p release
+          cp -r dist/ release/frontend/
+          cp -r whisp-server/ release/backend/
+          cp package.json release/
+          cp README.md release/
+          tar -czf whisp-quest-${{ github.event.release.tag_name }}.tar.gz -C release .
+          
+      - name: 📤 Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./whisp-quest-${{ github.event.release.tag_name }}.tar.gz
+          asset_name: whisp-quest-${{ github.event.release.tag_name }}.tar.gz
+          asset_content_type: application/gzip
