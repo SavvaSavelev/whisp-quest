@@ -53,7 +53,7 @@ export const useAppStore = create<AppStore>()(
       // App state
       isLoading: false,
       error: null,
-      debugMode: import.meta.env.DEV, // Use Vite environment variable
+      debugMode: false, // Set to false for production, true for development
       setLoading: (isLoading) => set({ isLoading }),
       setError: (error) => set({ error }),
       toggleDebugMode: () => set((state) => ({ debugMode: !state.debugMode })),
