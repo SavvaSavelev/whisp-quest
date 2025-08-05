@@ -2,6 +2,9 @@
 
 > **🧙‍♂️ Enterprise-Grade Interactive Spirit Summoning Experience**
 
+**🔒 ВНИМАНИЕ: Проект защищен строгой авторской лицензией!**  
+**© 2025 Савва Савельев Андреевич. Все права защищены. Копирование запрещено.**
+
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-GitHub_Pages-blue?style=for-the-badge)](https://savvasavelev.github.io/whisp-quest)
 [![CI Status](https://img.shields.io/github/actions/workflow/status/SavvaSavelev/whisp-quest/ci.yml?style=for-the-badge&label=🔄%20CI&logo=github)](https://github.com/SavvaSavelev/whisp-quest/actions/workflows/ci.yml)
 [![Deploy Status](https://img.shields.io/github/actions/workflow/status/SavvaSavelev/whisp-quest/deploy.yml?style=for-the-badge&label=🚀%20Deploy&logo=github)](https://github.com/SavvaSavelev/whisp-quest/actions/workflows/deploy.yml)
@@ -11,6 +14,7 @@
 [![Coverage](https://img.shields.io/badge/Coverage-8.57%25-yellow?style=for-the-badge&logo=codecov)](https://codecov.io/gh/SavvaSavelev/whisp-quest)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5+-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.0-blue?style=for-the-badge&logo=react)](https://react.dev/)
+[![License](https://img.shields.io/badge/License-СТРОГО_АВТОРСКАЯ-red?style=for-the-badge)](./LICENSE_STRICT.md)
 
 Whisp Quest — инновационная экспериментальная платформа, где слова обладают силой призывать цифровых духов. Проект демонстрирует enterprise-level архитектуру с использованием современных технологий: React 19, Three.js и OpenAI API.
 
@@ -571,109 +575,13 @@ const withPerformanceTracking = (Component) => { /* ... */ };
 
 ---
 
-## 🤝 Contributing
-
-### **📋 Development Workflow**
-
-#### **🔄 Git Flow Process**
-```bash
-# 1. Форк репозитория
-git clone https://github.com/your-username/whisp-quest.git
-cd whisp-quest
-
-# 2. Создание feature ветки
-git checkout -b feature/amazing-new-feature
-
-# 3. Разработка с проверками
-npm run prepare              # Pre-commit checks
-npm run test:coverage        # Verify tests pass
-
-# 4. Коммит с conventional format
-git commit -m "✨ feat: add amazing new feature"
-
-# 5. Push и создание PR
-git push origin feature/amazing-new-feature
-# Открыть PR через GitHub UI
-```
-
-#### **📝 Commit Convention**
-```bash
-✨ feat:     новая функциональность
-🐛 fix:      исправление багов  
-📚 docs:     документация
-🎨 style:    форматирование (no logic changes)
-♻️ refactor: рефакторинг кода
-🧪 test:     добавление/изменение тестов
-🔧 chore:    maintenance задачи
-⚡ perf:     оптимизация производительности
-🔒 security: security-related изменения
-```
-
-### **✅ Code Standards**
-
-#### **🎯 Quality Requirements**
-- **TypeScript:** Strict mode, no `any` types
-- **ESLint:** Must pass all linting rules
-- **Prettier:** Consistent code formatting  
-- **Tests:** New features require tests
-- **Coverage:** Не уменьшать существующее покрытие
-
-#### **📋 PR Checklist**
-```markdown
-- [ ] All tests pass locally (`npm run test:coverage`)
-- [ ] ESLint checks pass (`npm run lint`)  
-- [ ] TypeScript compiles (`npm run type-check`)
-- [ ] Build succeeds (`npm run build`)
-- [ ] Changes tested manually
-- [ ] Documentation updated (if needed)
-- [ ] Conventional commit format used
-- [ ] No secrets/API keys в коде
-```
-
-#### **🔍 Code Review Process**
-1. **Automated Checks:** CI pipeline must pass
-2. **Manual Review:** At least 1 approving review
-3. **Security Check:** Automated security scan
-4. **Performance:** Bundle size impact analysis
-
-### **🛠️ Development Environment**
-
-#### **📦 Recommended Setup**
-```bash
-# Global tools
-npm install -g @types/node typescript
-
-# Recommended VSCode extensions
-code --install-extension esbenp.prettier-vscode
-code --install-extension bradlc.vscode-tailwindcss  
-code --install-extension ms-vscode.vscode-typescript-next
-```
-
-#### **🔧 Local Development Commands**
-```bash
-# Setup для нового contributor'а
-git clone <fork-url>
-cd whisp-quest
-npm install
-cd whisp-server && npm install
-
-# Development workflow
-npm run dev              # Start frontend
-npm run dev:server       # Start backend (separate terminal)
-npm run test:watch       # Tests в watch mode
-
-# Pre-commit проверки
-npm run prepare          # Full validation
-```
-
----
-
 ## 📚 Documentation
 
 ### **📖 Project Documentation**
 - **[📋 PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md)** - Complete project overview
 - **[🔄 CI_CD_COMPLETE_GUIDE.md](./CI_CD_COMPLETE_GUIDE.md)** - Detailed CI/CD documentation  
 - **[🖥️ whisp-server/README.md](./whisp-server/README.md)** - Backend API reference
+- **[📄 PAGES_SETUP.md](./PAGES_SETUP.md)** - GitHub Pages setup guide
 - **[🧪 TESTING_REPORT.md](./TESTING_REPORT.md)** - Testing strategy and results
 - **[🔧 CLEANUP_FINAL_REPORT.md](./CLEANUP_FINAL_REPORT.md)** - Architecture improvements
 
@@ -921,6 +829,19 @@ Repository Settings → Pages → Source: GitHub Actions
 GitHub Actions → Deploy to Production → Run workflow
 ```
 
+**Q: GitHub Pages ошибка "Resource not accessible by integration"**
+```bash
+# Настроить Pages в репозитории
+Settings → Pages → Source: GitHub Actions
+
+# Проверить workflow permissions
+Settings → Actions → General → Workflow permissions: 
+"Read and write permissions"
+
+# Подробные инструкции
+See PAGES_SETUP.md для полного гайда
+```
+
 ### **🛠️ Common Solutions**
 
 #### **🔧 Environment Setup**
@@ -986,61 +907,64 @@ cat tailwind.config.js
 
 ## 📄 License & Legal
 
-### **📋 MIT License**
-```
-MIT License
+### **� СТРОГАЯ АВТОРСКАЯ ЛИЦЕНЗИЯ**
 
-Copyright (c) 2025 SavvaSavelev
+**© 2025 Савва Савельев Андреевич. ВСЕ ПРАВА ЗАЩИЩЕНЫ.**
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Данный проект является **исключительной интеллектуальной собственностью** автора **Саввы Савельева Андреевича** и защищен строгой авторской лицензией.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+### **⛔ КАТЕГОРИЧЕСКИ ЗАПРЕЩАЕТСЯ:**
+- ❌ **Копирование** кода, алгоритмов или документации
+- ❌ **Модификация** или создание производных работ  
+- ❌ **Распространение** в любой форме
+- ❌ **Коммерческое использование** или извлечение прибыли
+- ❌ **Реверс-инжиниринг** или анализ кода
+- ❌ **Плагиат** идей, концепций или решений
+- ❌ **Создание форков** или копий репозитория
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+### **💰 Штрафные санкции за нарушения:**
+- **Минимальный ущерб:** 500,000 рублей
+- **Коммерческое использование:** 1,000,000 рублей + упущенная выгода
+- **Корпоративное нарушение:** 5,000,000 рублей + судебные издержки
 
-### **🔒 Third-party Licenses**
-- **React:** MIT License
-- **Three.js:** MIT License  
-- **OpenAI API:** Commercial license required
-- **Tailwind CSS:** MIT License
-- **All dependencies:** See `package.json` для details
+### **📋 Полная лицензия:**
+**[📄 LICENSE_STRICT.md](./LICENSE_STRICT.md)** - Детальная информация об авторских правах и ограничениях
 
-### **⚖️ Usage Guidelines**
-- ✅ Personal use и development
-- ✅ Commercial use с attribution
-- ✅ Modification и distribution
-- ❌ Liability или warranty claims
-- ❌ Patent claims
+### **� ПРЕДУПРЕЖДЕНИЕ:**
+- Проект находится под **строжайшей защитой** авторских прав
+- **Мониторинг нарушений** ведется автоматически 24/7
+- **Нарушители преследуются** по полной строгости закона
+- **Все действия** с репозиторием отслеживаются и логируются
+
+### **⚖️ Правовая защита:**
+- **Единоличное владение** всеми правами на код
+- **Цифровая подпись** всех релизов  
+- **Автоматическое детектирование** плагиата
+- **Правовое преследование** нарушителей
 
 ---
 
 ## 👥 Team & Contributors
 
-### **🏆 Core Team**
-- **[SavvaSavelev](https://github.com/SavvaSavelev)** - Project Lead, Full-Stack Developer, DevOps Engineer
+### **🏆 Единственный автор и создатель**
+- **[Савва Савельев Андреевич](https://github.com/SavvaSavelev)** - Project Creator, Lead Developer, Full-Stack Engineer, DevOps Architect
 
-### **🤝 Contributing Guidelines**
-We welcome contributions from developers of all skill levels! See our [Contributing Guide](#🤝-contributing) for detailed information.
+### **🔒 Авторские права**
+Проект является **исключительной интеллектуальной собственностью** автора. Все права защищены строгой лицензией.
 
-### **📊 Project Statistics**
-- **⭐ GitHub Stars:** [Current count]
-- **🍴 Forks:** [Current count]  
-- **📈 Contributors:** [Current count]
-- **📝 Commits:** 500+ commits
-- **📦 Releases:** [Current version]
+### **⛔ Ограничения на участие**
+В связи со строгой авторской лицензией:
+- ❌ **Contributing запрещен** - проект не принимает внешние вклады
+- ❌ **Pull Requests отклоняются** - все изменения вносит только автор  
+- ❌ **Issues только для багрепортов** - не для feature requests
+- ❌ **Форки не разрешены** - создание копий запрещено
+
+### **📊 Project Statistics (Только автор)**
+- **⭐ GitHub Stars:** Приветствуются (read-only appreciation)
+- **🍴 Forks:** Запрещены авторской лицензией
+- **📈 Contributors:** 1 (только автор Савва Савельев)
+- **📝 Commits:** 500+ commits (все от автора)
+- **📦 Releases:** Контролируются автором
 
 ### **🙏 Acknowledgments**
 - **OpenAI** за powerful GPT API
@@ -1067,10 +991,13 @@ We welcome contributions from developers of all skill levels! See our [Contribut
 
 **🎯 Enterprise-ready React application с modern tech stack и professional development practices.**
 
-**✨ Built with ❤️ using cutting-edge technologies and industry best practices.**
+**🔒 ЗАЩИЩЕНО СТРОГОЙ АВТОРСКОЙ ЛИЦЕНЗИЕЙ - КОПИРОВАНИЕ ЗАПРЕЩЕНО!**
+
+**✨ Built with ❤️ by Савва Савельев Андреевич using cutting-edge technologies.**
 
 ---
 
-*📅 Последнее обновление: 5 августа 2025*
-*🔄 Версия документации: 2.0.0*
-*👨‍💻 Maintained by [SavvaSavelev](https://github.com/SavvaSavelev)*
+*📅 Последнее обновление: 5 августа 2025*  
+*🔄 Версия документации: 2.1.0*  
+*👨‍💻 Исключительный автор: [Савва Савельев Андреевич](https://github.com/SavvaSavelev)*  
+*⚖️ Все права защищены. Нарушение авторских прав преследуется по закону.*

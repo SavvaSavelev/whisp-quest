@@ -99,10 +99,16 @@ jobs:
     needs: build-production
     if: github.ref == 'refs/heads/master' && needs.build-production.outputs.build-success == 'success'
     
+    # Настройка разрешений для GitHub Pages
     permissions:
       contents: read
       pages: write
       id-token: write
+      actions: read
+      
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
       
     steps:
       - name: 📥 Download Build Artifact
@@ -111,39 +117,58 @@ jobs:
           name: production-build-${{ needs.build-production.outputs.build-hash }}
           path: dist/
           
-      - name: 📄 Setup Pages
-        uses: actions/configure-pages@v4
-        with:
-          enablement: true
-        continue-on-error: true
+      - name: � Check Pages Status
+        id: check-pages
+        run: |
+          echo "🔍 Checking GitHub Pages configuration..."
+          echo "Repository: ${{ github.repository }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          
+      - name: 📄 Setup Pages Configuration
         id: setup-pages
+        uses: actions/configure-pages@v5
+        continue-on-error: true
         
       - name: 📤 Upload Pages Artifact
-        if: steps.setup-pages.outcome == 'success'
+        if: steps.setup-pages.outcome == 'success' || steps.setup-pages.outcome == 'skipped'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist/
           
       - name: 🚀 Deploy to GitHub Pages
-        if: steps.setup-pages.outcome == 'success'
+        if: steps.setup-pages.outcome == 'success' || steps.setup-pages.outcome == 'skipped'
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
         
       - name: ✅ Deployment Success
-        if: steps.setup-pages.outcome == 'success'
+        if: steps.deployment.outcome == 'success'
         run: |
-          echo "🎉 Deployment successful!"
+          echo "🎉 GitHub Pages deployment successful!"
           echo "🌐 Site URL: ${{ steps.deployment.outputs.page_url }}"
           echo "📝 Build hash: ${{ needs.build-production.outputs.build-hash }}"
           echo "🕒 Deployed at: $(date)"
+          echo "::notice title=Deployment Success::Site is live at ${{ steps.deployment.outputs.page_url }}"
           
-      - name: ⚠️ Pages Setup Notice
-        if: steps.setup-pages.outcome == 'failure'
+      - name: 📝 Alternative Deployment Info
+        if: steps.deployment.outcome != 'success'
         run: |
-          echo "::warning::GitHub Pages is not enabled for this repository."
-          echo "::notice::Please enable Pages in repository Settings > Pages > Source: GitHub Actions"
-          echo "::notice::The build completed successfully, but Pages deployment was skipped."
-          echo "::notice::Manual setup required - see PAGES_SETUP.md for instructions"
+          echo "::warning title=Pages Deployment Issue::GitHub Pages deployment failed or is not configured"
+          echo "🔧 Manual setup required:"
+          echo "   1. Go to Repository Settings → Pages"
+          echo "   2. Source: GitHub Actions"
+          echo "   3. Re-run this workflow"
+          echo ""
+          echo "📦 Build artifacts are available for manual deployment:"
+          echo "   - Download from Actions → Artifacts"
+          echo "   - Deploy to any static hosting service"
+          echo ""
+          echo "🌐 Alternative hosting options:"
+          echo "   - Netlify: Deploy from build artifact"
+          echo "   - Vercel: Connect to GitHub repository"
+          echo "   - Firebase Hosting: Use dist/ folder"
 
   # 📦 Create Release Artifacts
   build-release-artifacts:
