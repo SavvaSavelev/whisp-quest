@@ -26,7 +26,8 @@
     "express-rate-limit": "^7.4.1",
     "helmet": "^8.0.0",
     "node-fetch": "^3.3.2",
-    "openai": "^4.73.1"
+    "openai": "^4.73.1",
+    "zod": "^3.25.76"
   },
   "engines": {
     "node": ">=18.0.0"
