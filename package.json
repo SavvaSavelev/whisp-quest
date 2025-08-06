@@ -26,7 +26,7 @@
     "@tippyjs/react": "^4.2.6",
     "@types/react-window": "^1.8.8",
     "date-fns": "^4.1.0",
-    "dotenv": "^16.4.7",
+    "dotenv": "^17.2.1",
     "framer-motion": "^12.23.12",
     "glslify": "^7.1.1",
     "nanoid": "^5.1.5",
