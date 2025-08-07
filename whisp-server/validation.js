@@ -1,4 +1,4 @@
-// 🛡️ Zod валидация схемы для Whisp Quest API
+// 🛡️ Zod валидация схемы для Whisp Quest API (ESM)
 import { z } from "zod";
 
 // 📝 Общие валидаторы
@@ -31,16 +31,14 @@ export const MoodValidator = z.enum(
     "angry",
     "acceptance",
   ],
-  {
-    errorMap: () => ({ message: "Неизвестное настроение" }),
-  }
+  { errorMap: () => ({ message: "Неизвестное настроение" }) }
 );
 
 export const RarityValidator = z.enum(["обычный", "редкий", "легендарный"], {
   errorMap: () => ({ message: "Неизвестная редкость" }),
 });
 
-// 🧙‍♂️ Схема для анализа текста (создание духа)
+// 🧙‍♂️ Analyze
 export const AnalyzeRequestSchema = z.object({
   text: TextValidator,
 });
@@ -55,7 +53,7 @@ export const AnalyzeResponseSchema = z.object({
   cached: z.boolean(),
 });
 
-// 💬 Схема для чата с духом
+// 💬 Chat
 export const SpiritChatRequestSchema = z.object({
   text: ShortTextValidator,
   mood: MoodValidator.optional(),
@@ -71,10 +69,9 @@ export const SpiritChatResponseSchema = z.object({
   timestamp: z.string().datetime(),
 });
 
-// 🗣️ Схема для сплетен духов
+// 🗣️ Gossip
 export const SpiritGossipRequestSchema = z
   .object({
-    // Поддерживаем старый формат (from/to)
     from: z
       .object({
         essence: z.string().min(1, "Сущность первого духа обязательна"),
@@ -89,8 +86,6 @@ export const SpiritGossipRequestSchema = z
         originText: z.string().optional(),
       })
       .optional(),
-
-    // Новый формат (spirits array)
     spirits: z
       .array(
         z.object({
@@ -105,10 +100,9 @@ export const SpiritGossipRequestSchema = z
   })
   .refine(
     (data) => {
-      // Должен быть либо from/to, либо spirits
-      const hasOldFormat = data.from && data.to;
-      const hasNewFormat = data.spirits && data.spirits.length === 2;
-      return hasOldFormat || hasNewFormat;
+      const hasOld = !!(data.from && data.to);
+      const hasNew = !!(data.spirits && data.spirits.length === 2);
+      return hasOld || hasNew;
     },
     {
       message:
@@ -123,7 +117,7 @@ export const SpiritGossipResponseSchema = z.object({
   timestamp: z.string().datetime(),
 });
 
-// 🏥 Схема для health check
+// 🏥 Health
 export const HealthResponseSchema = z.object({
   status: z.literal("ok"),
   uptime: z.number().positive(),
@@ -139,11 +133,7 @@ export const HealthResponseSchema = z.object({
   timestamp: z.string().datetime(),
 });
 
-// 🔧 Утилитарные функции для валидации
-
-/**
- * Валидирует входящий запрос и возвращает валидированные данные
- */
+// 🔧 Утилиты
 export function validateRequest(schema, data) {
   try {
     return schema.parse(data);
@@ -152,19 +142,15 @@ export function validateRequest(schema, data) {
       const errorMessages = error.errors
         .map((err) => `${err.path.join(".")}: ${err.message}`)
         .join(", ");
-
-      const validationError = new Error(`Ошибка валидации: ${errorMessages}`);
-      validationError.name = "ValidationError";
-      validationError.details = error.errors;
-      throw validationError;
+      const e = new Error(`Ошибка валидации: ${errorMessages}`);
+      e.name = "ValidationError";
+      e.details = error.errors;
+      throw e;
     }
     throw error;
   }
 }
 
-/**
- * Middleware для автоматической валидации запросов
- */
 export function validateMiddleware(schema) {
   return (req, res, next) => {
     try {
@@ -178,29 +164,24 @@ export function validateMiddleware(schema) {
           validation_errors: error.details,
         });
       }
-
-      // Неожиданная ошибка
       console.error("❌ Ошибка валидации:", error);
-      res.status(500).json({
-        error: "Внутренняя ошибка сервера при валидации",
-      });
+      res
+        .status(500)
+        .json({ error: "Внутренняя ошибка сервера при валидации" });
     }
   };
 }
 
-/**
- * Проверяет ответ перед отправкой (для отладки в development)
- */
 export function validateResponse(schema, data) {
   if (process.env.NODE_ENV === "development") {
     try {
       return schema.parse(data);
     } catch (error) {
       console.warn("⚠️ Ответ API не соответствует схеме:", error);
-      return data; // Возвращаем как есть, но логируем предупреждение
+      return data;
     }
   }
   return data;
 }
 
-console.log("🛡️ Zod валидация схемы загружены");
+console.log("🛡️ Zod валидация схем загружена");
