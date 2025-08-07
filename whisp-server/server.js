@@ -1,4 +1,4 @@
-// Whisp Quest Server v2.1.1 — Zod-compatible hardened build (ESM)
+// Whisp Quest Server v2.2 — /api/v1, SSE chat, aliases, MOCK, Zod-ready (ESM)
 
 import cors from "cors";
 import "dotenv/config";
@@ -6,6 +6,8 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import crypto from "node:crypto";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import OpenAI from "openai";
 
 import {
@@ -30,9 +32,12 @@ const ALLOWED_ORIGINS = (
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
+const MOCK = process.env.MOCK_OPENAI === "1";
 
-if (!OPENAI_API_KEY) {
-  console.error("❌ OPENAI_API_KEY отсутствует. Укажите в .env");
+if (!OPENAI_API_KEY && !MOCK) {
+  console.error(
+    "❌ OPENAI_API_KEY отсутствует. Укажите в .env или установите MOCK_OPENAI=1 для моков."
+  );
   process.exit(1);
 }
 
@@ -173,49 +178,36 @@ const isoNow = () => new Date().toISOString();
 const hashKey = (s) =>
   crypto.createHash("sha256").update(s).digest("base64url").slice(0, 44);
 
-function normalizeOpenAIError(err) {
-  const code = err?.status ?? err?.statusCode;
-  const message = err?.message ?? "OpenAI error";
-  if (err?.code === "insufficient_quota" || code === 429) {
-    return {
-      http: 503,
-      body: { error: "Превышена квота OpenAI API", code: "QUOTA_EXCEEDED" },
-    };
-  }
-  if (code === 400)
-    return { http: 400, body: { error: "Некорректный запрос к OpenAI" } };
-  if (code === 401)
-    return { http: 502, body: { error: "Неверный OPENAI_API_KEY" } };
-  return { http: 502, body: { error: message } };
-}
-
 const json = (res, data, schema) =>
   res.json(schema ? validateResponse(schema, data) : data);
 
-// ==== ROUTES ====
+// ==== BASE PATH & ALIASES ====
+const API = "/api/v1";
 
-// Root
+// Root (инфо)
 app.get("/", (_req, res) => {
   json(res, {
-    name: "✨ Whisp Quest Server v2.1.1",
+    name: "✨ Whisp Quest Server v2.2",
     status: "running",
     features: [
       "🔒 Security",
       "⚡ Rate Limiting",
       "💾 Caching",
       "🔍 Monitoring",
+      "🧵 Streaming",
     ],
     endpoints: {
-      analyze: "POST /analyze",
-      chat: "POST /spirit-chat",
-      gossip: "POST /spirit-gossip",
-      health: "GET /health",
+      analyze: `${API}/analyze`,
+      chat: `${API}/spirit-chat`,
+      chat_stream: `${API}/spirit-chat/stream`,
+      gossip: `${API}/spirit-gossip`,
+      health: "/health",
     },
     timestamp: isoNow(),
   });
 });
 
-// Health
+// Health (валидируем строго под Zod)
 app.get("/health", (_req, res) => {
   const mu = process.memoryUsage();
   json(
@@ -231,35 +223,18 @@ app.get("/health", (_req, res) => {
         arrayBuffers: mu.arrayBuffers ?? 0,
       },
       cache_size: cache.size,
-      openai_configured: true,
+      openai_configured: !MOCK,
       timestamp: isoNow(),
     },
     HealthResponseSchema
   );
 });
 
-app.get("/health/detailed", (_req, res) => {
-  const mu = process.memoryUsage();
-  json(res, {
-    server: {
-      status: "ok",
-      uptime: Math.floor(process.uptime()),
-      port: PORT,
-      node_version: process.version,
-    },
-    memory: {
-      ...mu,
-      usage_percent: Math.round((mu.heapUsed / mu.heapTotal) * 100),
-    },
-    cache: { size: cache.size, ttl_sec: Math.round(CACHE_TTL_MS / 1000) },
-    openai: { configured: true },
-    timestamp: isoNow(),
-  });
-});
+// === /api/v1 ===
 
 // Analyze
 app.post(
-  "/analyze",
+  `${API}/analyze`,
   validateMiddleware(AnalyzeRequestSchema),
   async (req, res) => {
     const { text } = req.validatedBody;
@@ -268,9 +243,23 @@ app.post(
     if (cached)
       return json(res, { ...cached, cached: true }, AnalyzeResponseSchema);
 
+    if (MOCK) {
+      const result = {
+        mood: "радостный",
+        color: "#33cc99",
+        rarity: "редкий",
+        essence: "искрящийся комар доверия",
+        dialogue: "Ну давай, удиви меня ещё одним шедевром самокритики.",
+        timestamp: isoNow(),
+        cached: false,
+      };
+      setCache(key, result);
+      return json(res, result, AnalyzeResponseSchema);
+    }
+
     const system = `Ты — древний духоанализатор. Верни ровно JSON:
 {
-  "mood": "...",         // одно слово, можно RU или en из списка
+  "mood": "...",
   "color": "#RRGGBB",
   "rarity": "обычный|редкий|легендарный",
   "essence": "...",
@@ -337,9 +326,9 @@ app.post(
   }
 );
 
-// Spirit chat
+// Spirit chat (обычный)
 app.post(
-  "/spirit-chat",
+  `${API}/spirit-chat`,
   chatLimiter,
   validateMiddleware(SpiritChatRequestSchema),
   async (req, res) => {
@@ -380,6 +369,19 @@ app.post(
     }
     messages.push({ role: "user", content: text });
 
+    if (MOCK) {
+      return json(
+        res,
+        {
+          reply:
+            "О, ещё один вопрос. Давай, только быстро — у меня тут вечность расписана по минутам.",
+          messageId: `msg_${Date.now()}_${crypto.randomUUID().split("-")[0]}`,
+          timestamp: isoNow(),
+        },
+        SpiritChatResponseSchema
+      );
+    }
+
     try {
       const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -407,15 +409,110 @@ app.post(
   }
 );
 
+// Spirit chat STREAM (POST + text/event-stream)
+app.post(
+  `${API}/spirit-chat/stream`,
+  chatLimiter,
+  validateMiddleware(SpiritChatRequestSchema),
+  async (req, res) => {
+    res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
+    res.setHeader("Connection", "keep-alive");
+
+    const {
+      text,
+      mood = "",
+      essence = "",
+      history = [],
+      originText = "",
+      birthDate = "",
+    } = req.validatedBody;
+
+    const persona =
+      `Ты дух по имени "${
+        essence || "Безымянный"
+      }", с настроением "${normalizeMood(mood)}".` +
+      (originText
+        ? ` Ты появился из слов: "${originText.slice(0, 100)}".`
+        : "") +
+      (birthDate ? ` Ты появился ${birthDate}.` : "");
+    const rules = `Общайся с сарказмом и лёгким матом, колко и живо. До 4 строк. Русский язык.`;
+
+    const messages = [{ role: "system", content: `${persona}\n\n${rules}` }];
+
+    if (Array.isArray(history) && history.length) {
+      const recent = history.slice(-6);
+      recent.forEach((msg, i) =>
+        messages.push({
+          role: i % 2 === 0 ? "assistant" : "user",
+          content: String(msg),
+        })
+      );
+    }
+    messages.push({ role: "user", content: text });
+
+    const send = (obj) => res.write(`data: ${JSON.stringify(obj)}\n\n`);
+    const end = () => {
+      res.write("event: end\ndata: {}\n\n");
+      res.end();
+    };
+
+    try {
+      if (MOCK) {
+        // Быстрый мок-стрим
+        send({ delta: "Ну " });
+        send({ delta: "привет, " });
+        send({ delta: "хозяин." });
+        return end();
+      }
+
+      const stream = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages,
+        temperature: 0.85,
+        max_tokens: 200,
+        stream: true,
+      });
+
+      for await (const part of stream) {
+        const chunk = part?.choices?.[0]?.delta?.content;
+        if (chunk) send({ delta: chunk });
+      }
+      end();
+    } catch (err) {
+      console.error("❌ Stream chat error:", err?.message);
+      res.write(
+        `event: error\ndata: ${JSON.stringify({ error: "stream_failed" })}\n\n`
+      );
+      end();
+    }
+  }
+);
+
 // Spirit gossip
 app.post(
-  "/spirit-gossip",
+  `${API}/spirit-gossip`,
   chatLimiter,
   validateMiddleware(SpiritGossipRequestSchema),
   async (req, res) => {
     const { from, to, spirits } = req.validatedBody;
     const a = from || (Array.isArray(spirits) && spirits[0]);
     const b = to || (Array.isArray(spirits) && spirits[1]);
+
+    if (MOCK) {
+      return json(
+        res,
+        {
+          question: `Эй, "${b.essence}", опять мудрость раздаёшь?`,
+          answer: "Только тем, кто умеет слушать. То есть — не тебе.",
+          messageId: `gossip_${Date.now()}_${
+            crypto.randomUUID().split("-")[0]
+          }`,
+          timestamp: isoNow(),
+        },
+        SpiritGossipResponseSchema
+      );
+    }
 
     const prompt = `Создай короткий диалог-сплетню.
 Дух 1: "${a.essence}" (настроение: ${normalizeMood(a.mood)}) ${
@@ -473,37 +570,72 @@ app.post(
   }
 );
 
+// === DEPRECATED ALIASES (логируем, но поддерживаем) ===
+function deprecate(req) {
+  console.warn(`⚠️  Deprecated path used: ${req.method} ${req.originalUrl}`);
+}
+app.post("/analyze", (req, res, next) => {
+  deprecate(req);
+  req.url = `${API}/analyze`;
+  next();
+});
+app.post("/spirit-chat", (req, res, next) => {
+  deprecate(req);
+  req.url = `${API}/spirit-chat`;
+  next();
+});
+app.post("/spirit-gossip", (req, res, next) => {
+  deprecate(req);
+  req.url = `${API}/spirit-gossip`;
+  next();
+});
+
 // 404
 app.use("*", (req, res) => {
-  res.status(404).json({
-    error: "Endpoint не найден",
-    path: req.originalUrl,
-    method: req.method,
-    suggestion: "Проверьте правильность URL",
-  });
+  res
+    .status(404)
+    .json({
+      error: "Endpoint не найден",
+      path: req.originalUrl,
+      method: req.method,
+      suggestion: "Проверьте правильность URL",
+    });
 });
 
 // error handler
 app.use((err, _req, res, _next) => {
   console.error("💥 Internal error:", err?.message);
-  res.status(500).json({
-    error: "Внутренняя ошибка сервера",
-    details: NODE_ENV === "development" ? err?.message : undefined,
-  });
+  res
+    .status(500)
+    .json({
+      error: "Внутренняя ошибка сервера",
+      details: NODE_ENV === "development" ? err?.message : undefined,
+    });
 });
 
-// start/stop
-const server = app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Whisp Quest Server v2.1.1 запущен`);
-  console.log(`🌐 http://localhost:${PORT}`);
-  console.log(
-    `📋 Endpoints: GET /, GET /health, POST /analyze, POST /spirit-chat, POST /spirit-gossip`
-  );
-});
-function shutdown(sig) {
-  console.log(`🛑 ${sig}`);
-  server.close(() => process.exit(0));
-  setTimeout(() => process.exit(1), 5000).unref();
+// ==== START/STOP GUARD ====
+// Экспортируем app для тестов. Запускаем сервер только при прямом запуске файла.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const isDirectRun =
+  import.meta.url === pathToFileURL(process.argv[1] || "").href;
+
+let server;
+if (isDirectRun) {
+  server = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`✅ Whisp Quest Server v2.2 запущен`);
+    console.log(`🌐 http://localhost:${PORT}`);
+    console.log(
+      `📋 Endpoints: GET /, GET /health, POST ${API}/analyze, POST ${API}/spirit-chat, POST ${API}/spirit-chat/stream, POST ${API}/spirit-gossip`
+    );
+  });
+  function shutdown(sig) {
+    console.log(`🛑 ${sig}`);
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(1), 5000).unref();
+  }
+  process.on("SIGINT", () => shutdown("SIGINT"));
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
 }
-process.on("SIGINT", () => shutdown("SIGINT"));
-process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+export { app };

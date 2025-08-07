@@ -1,4 +1,4 @@
-import { apiClient } from './APIClient';
+import { apiClient } from "./APIClient";
 
 /**
  * Общение с духом через OpenAI
@@ -25,8 +25,8 @@ export async function chatWithSpirit(params: {
 
     return response.reply;
   } catch (error) {
-    console.error('❌ Ошибка общения с духом:', error);
-    return 'Дух молчит...';
+    console.error("❌ Ошибка общения с духом:", error);
+    return "Дух молчит...";
   }
 }
 
@@ -46,10 +46,10 @@ export async function generateSpiritGossip(params: {
   };
 }): Promise<{ question: string; answer: string }> {
   try {
-    const response = await fetch('http://localhost:3001/spirit-gossip', {
-      method: 'POST',
+    const response = await fetch("http://localhost:3001/api/v1/spirit-gossip", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(params),
     });
@@ -60,10 +60,10 @@ export async function generateSpiritGossip(params: {
 
     return await response.json();
   } catch (error) {
-    console.error('❌ Ошибка генерации сплетен:', error);
+    console.error("❌ Ошибка генерации сплетен:", error);
     return {
-      question: 'Что скажешь об этом хозяине мыслей?',
-      answer: 'Да уж, жалкое зрелище...'
+      question: "Что скажешь об этом хозяине мыслей?",
+      answer: "Да уж, жалкое зрелище...",
     };
   }
 }

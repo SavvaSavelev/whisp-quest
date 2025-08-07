@@ -1,4 +1,4 @@
-import { SpiritAnalysis } from './analyzeSentiment';
+import { SpiritAnalysis } from "./analyzeSentiment";
 
 interface CacheItem<T = unknown> {
   data: T;
@@ -12,8 +12,8 @@ interface CacheItem<T = unknown> {
 class APIClient {
   private static instance: APIClient;
   private cache = new Map<string, CacheItem>();
-  private readonly baseURL = 'http://localhost:3001';
-  
+  private readonly baseURL = "http://localhost:3001";
+
   static getInstance(): APIClient {
     if (!APIClient.instance) {
       APIClient.instance = new APIClient();
@@ -30,12 +30,12 @@ class APIClient {
   }
 
   private async request<T>(
-    endpoint: string, 
-    options: RequestInit = {}, 
+    endpoint: string,
+    options: RequestInit = {},
     cacheTTL: number = 0
   ): Promise<T> {
     const cacheKey = this.getCacheKey(endpoint, options.body);
-    
+
     // Проверяем кеш если TTL > 0
     if (cacheTTL > 0) {
       const cached = this.cache.get(cacheKey);
@@ -47,7 +47,7 @@ class APIClient {
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           ...options.headers,
         },
         ...options,
@@ -77,9 +77,9 @@ class APIClient {
 
   async analyzeSentiment(text: string): Promise<SpiritAnalysis> {
     return this.request<SpiritAnalysis>(
-      '/analyze',
+      "/api/v1/analyze",
       {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify({ text }),
       },
       300000 // 5 минут кеш для анализа
@@ -95,9 +95,9 @@ class APIClient {
     birthDate?: string;
   }): Promise<{ reply: string }> {
     return this.request<{ reply: string }>(
-      '/spirit-chat',
+      "/api/v1/spirit-chat",
       {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(params),
       },
       0 // Не кешируем чат
