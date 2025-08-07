@@ -51,12 +51,12 @@ function getRarityStyle(rarity: string): string {
 }
 
 // Константы для частиц
-const PARTICLES = Array.from({ length: 8 }, (_, i) => ({ 
+const PARTICLES = Array.from({ length: 8 }, (_, i) => ({
   id: `particle-${i}`,
   left: Math.random() * 100,
   top: Math.random() * 100,
   duration: 2 + Math.random() * 3,
-  delay: Math.random() * 2
+  delay: Math.random() * 2,
 }));
 
 export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
@@ -469,7 +469,9 @@ export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
                 />
                 {/* Индикатор редкости */}
                 <div
-                  className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold border border-white/20 ${getRarityStyle(currentSpirit.rarity)}`}
+                  className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold border border-white/20 ${getRarityStyle(
+                    currentSpirit.rarity
+                  )}`}
                 >
                   ⭐ {currentSpirit.rarity.toUpperCase()}
                 </div>
@@ -594,13 +596,13 @@ export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
                 {loading || isStreaming ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    {isStreaming ? 'Стрим...' : 'Отправка...'}
+                    {isStreaming ? "Стрим..." : "Отправка..."}
                   </>
                 ) : (
                   <>📨 Отправить</>
                 )}
               </button>
-              
+
               {/* Кнопка отмены стрима */}
               {isStreaming && onStreamCancel && (
                 <button
