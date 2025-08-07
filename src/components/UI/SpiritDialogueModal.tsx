@@ -36,6 +36,29 @@ export interface SpiritDialogueModalProps {
   };
 }
 
+// Функция для определения стиля редкости
+function getRarityStyle(rarity: string): string {
+  if (rarity === "легендарный") {
+    return "bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-[0_0_20px_#ffd700]";
+  }
+  if (rarity === "эпический") {
+    return "bg-gradient-to-r from-purple-500 to-pink-500 shadow-[0_0_20px_#9333ea]";
+  }
+  if (rarity === "редкий") {
+    return "bg-gradient-to-r from-blue-500 to-cyan-500 shadow-[0_0_20px_#3b82f6]";
+  }
+  return "bg-gradient-to-r from-green-500 to-emerald-500 shadow-[0_0_20px_#10b981]";
+}
+
+// Константы для частиц
+const PARTICLES = Array.from({ length: 8 }, (_, i) => ({ 
+  id: `particle-${i}`,
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  duration: 2 + Math.random() * 3,
+  delay: Math.random() * 2
+}));
+
 export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
   showStorage,
   selectedSpiritId,
@@ -283,6 +306,10 @@ export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
 
   const handleClose = () => {
     soundManager.playSound("modal-close");
+    // Отменяем стрим если он активен
+    if (isStreaming && onStreamCancel) {
+      onStreamCancel();
+    }
     closeModal();
   };
 
@@ -403,17 +430,15 @@ export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
           <div className="modal-appear text-white p-8 relative pointer-events-auto">
             {/* Декоративные частицы */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {[...Array(8)].map((_, i) => (
+              {PARTICLES.map((particle) => (
                 <div
-                  key={i}
+                  key={particle.id}
                   className="absolute w-1 h-1 bg-blue-400/30 rounded-full"
                   style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    animation: `particleFloat ${
-                      2 + Math.random() * 3
-                    }s ease-out infinite`,
-                    animationDelay: `${Math.random() * 2}s`,
+                    left: `${particle.left}%`,
+                    top: `${particle.top}%`,
+                    animation: `particleFloat ${particle.duration}s ease-out infinite`,
+                    animationDelay: `${particle.delay}s`,
                   }}
                 />
               ))}
@@ -444,15 +469,7 @@ export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
                 />
                 {/* Индикатор редкости */}
                 <div
-                  className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold border border-white/20 ${
-                    currentSpirit.rarity === "легендарный"
-                      ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-[0_0_20px_#ffd700]"
-                      : currentSpirit.rarity === "эпический"
-                      ? "bg-gradient-to-r from-purple-500 to-pink-500 shadow-[0_0_20px_#9333ea]"
-                      : currentSpirit.rarity === "редкий"
-                      ? "bg-gradient-to-r from-blue-500 to-cyan-500 shadow-[0_0_20px_#3b82f6]"
-                      : "bg-gradient-to-r from-green-500 to-emerald-500 shadow-[0_0_20px_#10b981]"
-                  }`}
+                  className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold border border-white/20 ${getRarityStyle(currentSpirit.rarity)}`}
                 >
                   ⭐ {currentSpirit.rarity.toUpperCase()}
                 </div>
@@ -571,18 +588,28 @@ export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
               />
               <button
                 onClick={askSpirit}
-                disabled={loading || !userMessage.trim()}
+                disabled={loading || !userMessage.trim() || isStreaming}
                 className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-slate-600 disabled:to-slate-700 rounded-xl text-sm font-medium transition-all duration-200 disabled:cursor-not-allowed flex items-center gap-2 border border-blue-500/30 hover:border-purple-400/50 disabled:border-slate-600/30"
               >
-                {loading ? (
+                {loading || isStreaming ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Отправка...
+                    {isStreaming ? 'Стрим...' : 'Отправка...'}
                   </>
                 ) : (
                   <>📨 Отправить</>
                 )}
               </button>
+              
+              {/* Кнопка отмены стрима */}
+              {isStreaming && onStreamCancel && (
+                <button
+                  onClick={onStreamCancel}
+                  className="px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 border border-red-500/30 hover:border-red-400/50"
+                >
+                  ⏹️ Остановить
+                </button>
+              )}
             </div>
 
             {/* Счетчик символов */}
