@@ -45,8 +45,12 @@ export async function generateSpiritGossip(params: {
     originText?: string;
   };
 }): Promise<{ question: string; answer: string }> {
+  const BASE =
+    import.meta.env.VITE_API_BASE?.replace(/\/+$/, "") ||
+    "http://localhost:3001";
+
   try {
-    const response = await fetch("http://localhost:3001/api/v1/spirit-gossip", {
+    const response = await fetch(`${BASE}/api/v1/spirit-gossip`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

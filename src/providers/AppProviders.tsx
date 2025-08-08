@@ -1,8 +1,8 @@
-import React from 'react';
-import { ErrorBoundary } from '../components/ErrorBoundary/ErrorBoundary';
-import { NotificationProvider } from '../components/UI/Notifications';
-import AppConfigContext, { type AppConfig } from './hooks/useAppConfig';
-import PerformanceContext from './hooks/usePerformance';
+import React from "react";
+import { ErrorBoundary } from "../components/ErrorBoundary/ErrorBoundary";
+import { NotificationProvider } from "../components/UI/Notifications";
+import AppConfigContext, { type AppConfig } from "./hooks/useAppConfig";
+import PerformanceContext from "./hooks/usePerformance";
 
 // Провайдер конфигурации
 export const AppConfigProvider: React.FC<{
@@ -10,10 +10,12 @@ export const AppConfigProvider: React.FC<{
   config?: Partial<AppConfig>;
 }> = ({ children, config = {} }) => {
   const defaultConfig: AppConfig = {
-    apiBaseUrl: 'http://localhost:3001',
+    apiBaseUrl:
+      import.meta.env.VITE_API_BASE?.replace(/\/+$/, "") ||
+      "http://localhost:3001",
     debug: import.meta.env.DEV,
-    version: '1.0.0',
-    theme: 'dark',
+    version: "1.0.0",
+    theme: "dark",
     debugMode: import.meta.env.DEV,
     enableAnalytics: import.meta.env.PROD,
     enableErrorReporting: import.meta.env.PROD,
@@ -27,7 +29,9 @@ export const AppConfigProvider: React.FC<{
   );
 };
 
-export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const measurements = React.useRef<Map<string, number>>(new Map());
 
   const startMeasure = React.useCallback((name: string) => {
@@ -47,25 +51,31 @@ export const PerformanceProvider: React.FC<{ children: React.ReactNode }> = ({ c
     return 0;
   }, []);
 
-  const measureComponent = React.useCallback(<T extends Record<string, unknown>>(
-    Component: React.ComponentType<T>
-  ): React.ComponentType<T> => {
-    const MeasuredComponent: React.ComponentType<T> = (props) => {
-      const componentName = Component.displayName || Component.name || 'Unknown';
-      
-      React.useEffect(() => {
-        startMeasure(`render-${componentName}`);
-        return () => {
-          endMeasure(`render-${componentName}`);
-        };
-      });
+  const measureComponent = React.useCallback(
+    <T extends Record<string, unknown>>(
+      Component: React.ComponentType<T>
+    ): React.ComponentType<T> => {
+      const MeasuredComponent: React.ComponentType<T> = (props) => {
+        const componentName =
+          Component.displayName || Component.name || "Unknown";
 
-      return <Component {...props} />;
-    };
+        React.useEffect(() => {
+          startMeasure(`render-${componentName}`);
+          return () => {
+            endMeasure(`render-${componentName}`);
+          };
+        });
 
-    MeasuredComponent.displayName = `Measured(${Component.displayName || Component.name})`;
-    return MeasuredComponent;
-  }, [startMeasure, endMeasure]);
+        return <Component {...props} />;
+      };
+
+      MeasuredComponent.displayName = `Measured(${
+        Component.displayName || Component.name
+      })`;
+      return MeasuredComponent;
+    },
+    [startMeasure, endMeasure]
+  );
 
   const value = {
     startMeasure,
@@ -86,14 +96,15 @@ interface AppProvidersProps {
   config?: Partial<AppConfig>;
 }
 
-export const AppProviders: React.FC<AppProvidersProps> = ({ children, config }) => {
+export const AppProviders: React.FC<AppProvidersProps> = ({
+  children,
+  config,
+}) => {
   return (
     <ErrorBoundary>
       <AppConfigProvider config={config}>
         <PerformanceProvider>
-          <NotificationProvider>
-            {children}
-          </NotificationProvider>
+          <NotificationProvider>{children}</NotificationProvider>
         </PerformanceProvider>
       </AppConfigProvider>
     </ErrorBoundary>

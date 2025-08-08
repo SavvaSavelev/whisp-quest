@@ -11,6 +11,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import OpenAI from "openai";
 
 import {
+  AIMissionRequestSchema,
+  AIMissionResponseSchema,
   AnalyzeRequestSchema,
   AnalyzeResponseSchema,
   HealthResponseSchema,
@@ -18,8 +20,6 @@ import {
   SpiritChatResponseSchema,
   SpiritGossipRequestSchema,
   SpiritGossipResponseSchema,
-  AIMissionRequestSchema,
-  AIMissionResponseSchema,
   validateMiddleware,
   validateResponse,
 } from "./validation.js";
@@ -203,7 +203,7 @@ app.get("/", (_req, res) => {
       chat: `${API}/spirit-chat`,
       chat_stream: `${API}/spirit-chat/stream`,
       gossip: `${API}/spirit-gossip`,
-  ai_mission: `${API}/ai-mission`,
+      ai_mission: `${API}/ai-mission`,
       health: "/health",
     },
     timestamp: isoNow(),
@@ -344,20 +344,30 @@ app.post(
       history = [],
     } = req.validatedBody;
 
-    const missionId = `mission_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
+    const missionId = `mission_${Date.now()}_${crypto
+      .randomUUID()
+      .slice(0, 8)}`;
 
     if (MOCK) {
       const moodsPool = desiredMoods.length
         ? desiredMoods
         : ["вдохновлённый", "радостный", "спокойный"];
-      const mockTeam = Array.from({ length: Math.max(2, Math.min(5, teamSize)) }).map(
-        (_, i) => ({
-          essence: spiritHints[i]?.essence || `дух #${i + 1}`,
-          mood: normalizeMood(spiritHints[i]?.mood || moodsPool[i % moodsPool.length]),
-          role: ["аналитик", "скептик", "мотиватор", "исследователь", "организатор"][i % 5],
-          rationale: "Подходит по настрою и роли для данной миссии",
-        })
-      );
+      const mockTeam = Array.from({
+        length: Math.max(2, Math.min(5, teamSize)),
+      }).map((_, i) => ({
+        essence: spiritHints[i]?.essence || `дух #${i + 1}`,
+        mood: normalizeMood(
+          spiritHints[i]?.mood || moodsPool[i % moodsPool.length]
+        ),
+        role: [
+          "аналитик",
+          "скептик",
+          "мотиватор",
+          "исследователь",
+          "организатор",
+        ][i % 5],
+        rationale: "Подходит по настрою и роли для данной миссии",
+      }));
 
       return json(
         res,
@@ -371,8 +381,14 @@ app.post(
             "Сформировать общий вывод",
           ],
           steps: [
-            { speaker: mockTeam[0].essence, content: `Предлагаю начать: ${topic}` },
-            { speaker: mockTeam[1].essence, content: "Проверим риски и слабые места" },
+            {
+              speaker: mockTeam[0].essence,
+              content: `Предлагаю начать: ${topic}`,
+            },
+            {
+              speaker: mockTeam[1].essence,
+              content: "Проверим риски и слабые места",
+            },
             { speaker: mockTeam[2].essence, content: "Соберу мысли в план" },
           ],
           finalAnswer:
@@ -394,7 +410,10 @@ app.post(
 - Учитывай ограничения: ${constraints.join("; ") || "нет"}`;
 
     const hints = spiritHints
-      .map((h, i) => `#${i + 1}: mood=${h.mood || "?"}, essence=${h.essence || "?"}`)
+      .map(
+        (h, i) =>
+          `#${i + 1}: mood=${h.mood || "?"}, essence=${h.essence || "?"}`
+      )
       .join("; ");
 
     const user = `Тема: ${topic}
@@ -434,10 +453,12 @@ app.post(
           rationale: String(s.rationale || "подходит к задаче"),
         })),
         plan: (parsed.plan || []).map((p) => String(p)).slice(0, 7),
-        steps: (parsed.steps || []).map((st) => ({
-          speaker: String(st.speaker || "дух"),
-          content: String(st.content || "...")
-        })).slice(0, 20),
+        steps: (parsed.steps || [])
+          .map((st) => ({
+            speaker: String(st.speaker || "дух"),
+            content: String(st.content || "..."),
+          }))
+          .slice(0, 20),
         finalAnswer: String(parsed.finalAnswer || "Готово."),
         timestamp: isoNow(),
       };
@@ -451,7 +472,12 @@ app.post(
           missionId,
           selectedSpirits: [],
           plan: ["Сформулировать тему", "Собрать духов", "Согласовать шаги"],
-          steps: [{ speaker: "система", content: "Возникла ошибка, попробуйте позже" }],
+          steps: [
+            {
+              speaker: "система",
+              content: "Возникла ошибка, попробуйте позже",
+            },
+          ],
           finalAnswer: "Сейчас духи недоступны. Повторите попытку позже.",
           timestamp: isoNow(),
         },
@@ -727,25 +753,21 @@ app.post("/spirit-gossip", (req, res, next) => {
 
 // 404
 app.use("*", (req, res) => {
-  res
-    .status(404)
-    .json({
-      error: "Endpoint не найден",
-      path: req.originalUrl,
-      method: req.method,
-      suggestion: "Проверьте правильность URL",
-    });
+  res.status(404).json({
+    error: "Endpoint не найден",
+    path: req.originalUrl,
+    method: req.method,
+    suggestion: "Проверьте правильность URL",
+  });
 });
 
 // error handler
 app.use((err, _req, res, _next) => {
   console.error("💥 Internal error:", err?.message);
-  res
-    .status(500)
-    .json({
-      error: "Внутренняя ошибка сервера",
-      details: NODE_ENV === "development" ? err?.message : undefined,
-    });
+  res.status(500).json({
+    error: "Внутренняя ошибка сервера",
+    details: NODE_ENV === "development" ? err?.message : undefined,
+  });
 });
 
 // ==== START/STOP GUARD ====

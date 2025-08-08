@@ -1,6 +1,7 @@
 // src/App.tsx
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { DebugPanel } from "./components/Debug/DebugPanel";
+import { AIMissionModal } from "./components/UI/AIMissionModal";
 import { AnimatedFrame } from "./components/UI/AnimatedFrame";
 import { AppLoader } from "./components/UI/AppLoader";
 import { DiaryPage } from "./components/UI/DiaryPage";
@@ -226,7 +227,7 @@ function App() {
           <DebugPanel isVisible={true} position="bottom-right" />
         )}
 
-        {/* Кнопка галактики - рендерим в самом конце для максимального z-index */}
+        {/* Кнопки действий - рендерим в самом конце для максимального z-index */}
         {!showStorage && (
           <div className="fixed top-6 left-6 z-[9999] pointer-events-auto flex gap-2">
             <button
@@ -236,11 +237,30 @@ function App() {
             >
               🌌 Галактика
             </button>
+            <AIMissionLauncher />
           </div>
         )}
+
+        {/* Модалка AI‑миссии */}
+        <AIMissionModal />
       </div>
     </AppProviders>
   );
 }
 
 export default App;
+
+// Локальная кнопка‑ланчер для AI‑миссии (отдельно, чтобы не засорять компонент App)
+const AIMissionLauncher: React.FC = () => {
+  const setShowMission = useUIStore((s) => s.setShowMission);
+  return (
+    <button
+      className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium text-sm rounded-lg hover:scale-105 transition-all duration-200 shadow-2xl border-2 border-white/30 backdrop-blur-sm"
+      onClick={() => setShowMission(true)}
+      style={{ position: "relative", zIndex: 10000 }}
+      title="Запустить AI‑миссию"
+    >
+      🚀 Миссия
+    </button>
+  );
+};

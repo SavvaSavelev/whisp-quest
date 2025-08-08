@@ -1,13 +1,13 @@
 // Универсальный клиент Whisp Quest API v2.2
 import type {
+  AIMissionRequest,
+  AIMissionResponse,
   AnalyzeRequest,
   AnalyzeResponse,
   SpiritChatRequest,
   SpiritChatResponse,
   SpiritGossipRequest,
   SpiritGossipResponse,
-  AIMissionRequest,
-  AIMissionResponse,
 } from "./types";
 
 const BASE =
