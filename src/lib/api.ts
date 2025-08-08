@@ -6,6 +6,8 @@ import type {
   SpiritChatResponse,
   SpiritGossipRequest,
   SpiritGossipResponse,
+  AIMissionRequest,
+  AIMissionResponse,
 } from "./types";
 
 const BASE =
@@ -50,6 +52,10 @@ export function spiritChat(payload: SpiritChatRequest, init?: RequestInit) {
 
 export function spiritGossip(payload: SpiritGossipRequest, init?: RequestInit) {
   return apiFetch<SpiritGossipResponse>(`${API}/spirit-gossip`, payload, init);
+}
+
+export function aiMission(payload: AIMissionRequest, init?: RequestInit) {
+  return apiFetch<AIMissionResponse>(`${API}/ai-mission`, payload, init);
 }
 
 /**

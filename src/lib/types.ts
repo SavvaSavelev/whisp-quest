@@ -67,3 +67,32 @@ export interface SpiritGossipResponse {
   messageId: string;
   timestamp: string;
 }
+
+// --- AI Mission
+export interface AIMissionRequest {
+  topic: string;
+  context?: string;
+  constraints?: string[];
+  desiredMoods?: Mood[];
+  spiritHints?: Array<{
+    essence?: string;
+    mood?: Mood;
+    originText?: string;
+  }>;
+  teamSize?: number; // 2..5
+  history?: string[];
+}
+
+export interface AIMissionResponse {
+  missionId: string;
+  selectedSpirits: Array<{
+    essence: string;
+    mood: Mood;
+    role: string;
+    rationale: string;
+  }>;
+  plan: string[];
+  steps: Array<{ speaker: string; content: string }>;
+  finalAnswer: string;
+  timestamp: string;
+}

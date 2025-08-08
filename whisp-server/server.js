@@ -18,6 +18,8 @@ import {
   SpiritChatResponseSchema,
   SpiritGossipRequestSchema,
   SpiritGossipResponseSchema,
+  AIMissionRequestSchema,
+  AIMissionResponseSchema,
   validateMiddleware,
   validateResponse,
 } from "./validation.js";
@@ -201,6 +203,7 @@ app.get("/", (_req, res) => {
       chat: `${API}/spirit-chat`,
       chat_stream: `${API}/spirit-chat/stream`,
       gossip: `${API}/spirit-gossip`,
+  ai_mission: `${API}/ai-mission`,
       health: "/health",
     },
     timestamp: isoNow(),
@@ -321,6 +324,138 @@ app.post(
           cached: false,
         },
         AnalyzeResponseSchema
+      );
+    }
+  }
+);
+
+// AI Mission — сбор команды духов и коллективное решение
+app.post(
+  `${API}/ai-mission`,
+  validateMiddleware(AIMissionRequestSchema),
+  async (req, res) => {
+    const {
+      topic,
+      context = "",
+      constraints = [],
+      desiredMoods = [],
+      spiritHints = [],
+      teamSize = 3,
+      history = [],
+    } = req.validatedBody;
+
+    const missionId = `mission_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
+
+    if (MOCK) {
+      const moodsPool = desiredMoods.length
+        ? desiredMoods
+        : ["вдохновлённый", "радостный", "спокойный"];
+      const mockTeam = Array.from({ length: Math.max(2, Math.min(5, teamSize)) }).map(
+        (_, i) => ({
+          essence: spiritHints[i]?.essence || `дух #${i + 1}`,
+          mood: normalizeMood(spiritHints[i]?.mood || moodsPool[i % moodsPool.length]),
+          role: ["аналитик", "скептик", "мотиватор", "исследователь", "организатор"][i % 5],
+          rationale: "Подходит по настрою и роли для данной миссии",
+        })
+      );
+
+      return json(
+        res,
+        {
+          missionId,
+          selectedSpirits: mockTeam,
+          plan: [
+            "Собрать ключевые записи и контекст",
+            "Определить цели и ограничения",
+            "Синтезировать ответы по ролям",
+            "Сформировать общий вывод",
+          ],
+          steps: [
+            { speaker: mockTeam[0].essence, content: `Предлагаю начать: ${topic}` },
+            { speaker: mockTeam[1].essence, content: "Проверим риски и слабые места" },
+            { speaker: mockTeam[2].essence, content: "Соберу мысли в план" },
+          ],
+          finalAnswer:
+            "Итог: команда духов составила план и дала рекомендации. Готово к следующему шагу.",
+          timestamp: isoNow(),
+        },
+        AIMissionResponseSchema
+      );
+    }
+
+    // OpenAI режим — сформируем системный запрос на командную работу
+    const system = `Ты — фасилитатор команды духов. На вход тема миссии, ограничения и подсказки по духам.
+Выбирай ${teamSize} духов с подходящими ролями, обсуждай шаги и дай финальный ответ.
+Верни JSON с полями missionId, selectedSpirits[{ essence, mood, role, rationale }], plan[string[]], steps[{ speaker, content }], finalAnswer, timestamp.`;
+
+    const rules = `Соблюдай:
+- Краткость, ясность, практичность
+- Максимум 7 шагов плана, 10 предложений финального ответа
+- Учитывай ограничения: ${constraints.join("; ") || "нет"}`;
+
+    const hints = spiritHints
+      .map((h, i) => `#${i + 1}: mood=${h.mood || "?"}, essence=${h.essence || "?"}`)
+      .join("; ");
+
+    const user = `Тема: ${topic}
+Контекст: ${context}
+Желаемые настроения: ${desiredMoods.join(", ") || "не указаны"}
+Подсказки духов: ${hints || "нет"}
+История: ${(history || []).slice(-6).join(" | ")}`;
+
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: `${system}\n\n${rules}` },
+          { role: "user", content: user },
+        ],
+        temperature: 0.6,
+        max_tokens: 700,
+        response_format: { type: "json_object" },
+      });
+
+      const raw = completion.choices[0]?.message?.content?.trim();
+      if (!raw) throw new Error("Пустой ответ OpenAI");
+
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        throw new Error("Невалидный JSON от OpenAI");
+      }
+
+      const result = {
+        missionId,
+        selectedSpirits: (parsed.selectedSpirits || []).map((s) => ({
+          essence: String(s.essence || "дух"),
+          mood: normalizeMood(s.mood),
+          role: String(s.role || "участник"),
+          rationale: String(s.rationale || "подходит к задаче"),
+        })),
+        plan: (parsed.plan || []).map((p) => String(p)).slice(0, 7),
+        steps: (parsed.steps || []).map((st) => ({
+          speaker: String(st.speaker || "дух"),
+          content: String(st.content || "...")
+        })).slice(0, 20),
+        finalAnswer: String(parsed.finalAnswer || "Готово."),
+        timestamp: isoNow(),
+      };
+
+      return json(res, result, AIMissionResponseSchema);
+    } catch (err) {
+      console.error("❌ AI Mission error:", err?.message);
+      return json(
+        res,
+        {
+          missionId,
+          selectedSpirits: [],
+          plan: ["Сформулировать тему", "Собрать духов", "Согласовать шаги"],
+          steps: [{ speaker: "система", content: "Возникла ошибка, попробуйте позже" }],
+          finalAnswer: "Сейчас духи недоступны. Повторите попытку позже.",
+          timestamp: isoNow(),
+        },
+        AIMissionResponseSchema
       );
     }
   }

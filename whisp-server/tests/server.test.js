@@ -50,4 +50,17 @@ describe("API v1", () => {
     expect(res.status).toBe(200);
     expect(res.headers["content-type"]).toContain("text/event-stream");
   });
+
+  it("ai mission returns structured plan in MOCK", async () => {
+    const app = await importApp();
+    const res = await request(app)
+      .post("/api/v1/ai-mission")
+      .send({ topic: "Найди смысл этих записей", teamSize: 3 });
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("missionId");
+    expect(Array.isArray(res.body.selectedSpirits)).toBe(true);
+    expect(Array.isArray(res.body.plan)).toBe(true);
+    expect(Array.isArray(res.body.steps)).toBe(true);
+    expect(typeof res.body.finalAnswer).toBe("string");
+  });
 });

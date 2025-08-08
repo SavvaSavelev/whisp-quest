@@ -117,6 +117,51 @@ export const SpiritGossipResponseSchema = z.object({
   timestamp: z.string().datetime(),
 });
 
+// 🧭 AI Mission (командная работа духов)
+export const AIMissionRequestSchema = z.object({
+  topic: ShortTextValidator, // тема миссии
+  context: z.string().optional(),
+  constraints: z.array(z.string()).max(10).optional(),
+  desiredMoods: z.array(MoodValidator).min(1).max(5).optional(),
+  spiritHints: z
+    .array(
+      z.object({
+        essence: z.string().optional(),
+        mood: MoodValidator.optional(),
+        originText: z.string().optional(),
+      })
+    )
+    .max(7)
+    .optional(),
+  teamSize: z.number().int().min(2).max(5).default(3),
+  history: z.array(z.string()).max(12).optional().default([]),
+});
+
+export const AIMissionResponseSchema = z.object({
+  missionId: z.string().min(1),
+  selectedSpirits: z
+    .array(
+      z.object({
+        essence: z.string().min(1),
+        mood: MoodValidator,
+        role: z.string().min(1),
+        rationale: z.string().min(1),
+      })
+    )
+    .min(2),
+  plan: z.array(z.string()).min(1),
+  steps: z
+    .array(
+      z.object({
+        speaker: z.string().min(1),
+        content: z.string().min(1),
+      })
+    )
+    .min(1),
+  finalAnswer: z.string().min(1),
+  timestamp: z.string().datetime(),
+});
+
 // 🏥 Health
 export const HealthResponseSchema = z.object({
   status: z.literal("ok"),

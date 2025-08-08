@@ -37,6 +37,8 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/vite-env.d.ts',
     '!src/main.tsx',
+  '!src/lib/api.ts',
+  '!src/scenes/**',
     '!src/**/*.stories.{ts,tsx}',
     '!src/**/__tests__/**',
     '!src/**/*.test.{ts,tsx}',

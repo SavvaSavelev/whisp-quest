@@ -1,4 +1,5 @@
 import { SpiritAnalysis } from "./analyzeSentiment";
+import type { AIMissionRequest, AIMissionResponse } from "./types";
 
 interface CacheItem<T = unknown> {
   data: T;
@@ -119,6 +120,18 @@ class APIClient {
         this.cache.delete(key);
       }
     }
+  }
+
+  // --- AI Mission
+  async runAIMission(payload: AIMissionRequest): Promise<AIMissionResponse> {
+    return this.request<AIMissionResponse>(
+      "/api/v1/ai-mission",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      0
+    );
   }
 }
 
