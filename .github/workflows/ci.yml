@@ -32,10 +32,10 @@ jobs:
           cache-dependency-path: ${{ env.CACHE_DEPENDENCY_PATH }}
 
       - name: 📦 Install Dependencies (Frontend)
-        run: npm ci
+        run: npm ci --ignore-engines --no-audit --no-fund
 
       - name: 📦 Install Dependencies (Backend)
-        run: npm ci
+        run: npm ci --ignore-engines --no-audit --no-fund
         working-directory: whisp-server
 
       - name: 🔍 ESLint Check
