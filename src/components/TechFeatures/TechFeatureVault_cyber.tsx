@@ -133,18 +133,20 @@ const TechFeatureCard: React.FC<TechFeatureCardProps> = ({
 
           {/* Neural Data Button */}
           <div>
-            <Button
-              onClick={() => {
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
                 console.log(
                   "Show Neural Data clicked for feature:",
                   feature.title
                 );
                 setShowNeuralModal(true);
               }}
-              className="w-full justify-center text-cyan-400 hover:text-cyan-300 bg-black/40 border border-cyan-500/30 hover:border-cyan-400/50 rounded-xl font-mono font-bold uppercase tracking-wide transition-all"
+              className="w-full px-4 py-2 text-cyan-400 hover:text-cyan-300 bg-black/40 border border-cyan-500/30 hover:border-cyan-400/50 rounded-xl font-mono font-bold uppercase tracking-wide transition-all cursor-pointer"
+              style={{ zIndex: 10, position: "relative" }}
             >
               🧠 SHOW NEURAL DATA
-            </Button>
+            </button>
           </div>
 
           {/* Neural Data Modal */}
