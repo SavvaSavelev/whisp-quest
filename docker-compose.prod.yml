@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # Frontend (React + Vite + Nginx)
+  whisp-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whisp-frontend-prod
+    ports:
+      - "80:80"
+      - "443:443"  # Для SSL в будущем
+    depends_on:
+      whisp-server:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+    networks:
+      - whisp-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    labels:
+      - "com.docker.compose.service=frontend"
+      - "traefik.enable=true"
+      - "traefik.http.routers.whisp-frontend.rule=Host(`whisp-quest.local`)"
+
+  # Backend (Express + OpenAI)
+  whisp-server:
+    build:
+      context: ./whisp-server
+      dockerfile: Dockerfile
+    container_name: whisp-server-prod
+    expose:
+      - "3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - RATE_LIMIT_WINDOW_MS=900000
+      - RATE_LIMIT_MAX=100
+    env_file:
+      - .env
+    networks:
+      - whisp-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3002/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "com.docker.compose.service=backend"
+
+  # Redis для кеширования (опционально)
+  redis:
+    image: redis:7-alpine
+    container_name: whisp-redis-prod
+    expose:
+      - "6379"
+    networks:
+      - whisp-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    labels:
+      - "com.docker.compose.service=cache"
+
+networks:
+  whisp-network:
+    driver: bridge
+    labels:
+      - "com.docker.compose.network=whisp-network"
+
+volumes:
+  redis_data:
+    driver: local
+  nginx_logs:
+    driver: local

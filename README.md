@@ -1,53 +1,296 @@
 # ✨ Whisp Quest
 
-> **🧙‍♂️ Enterprise-Grade Interactive Spirit Summoning Experience**
+> **🧙‍♂️ Interactive Spirit Summoning Experience**
 
-**🔒 ВНИМАНИЕ: Проект защищен строгой авторской лицензией!**  
-**© 2025 Савва Савельев Андреевич. Все права защищены. Копирование запрещено.**
+**© 2025 Савва Савельев Андреевич. Все права защищены.**
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-GitHub_Pages-blue?style=for-the-badge)](https://savvasavelev.github.io/whisp-quest)
-[![CI Status](https://img.shields.io/github/actions/workflow/status/SavvaSavelev/whisp-quest/ci.yml?style=for-the-badge&label=🔄%20CI&logo=github)](https://github.com/SavvaSavelev/whisp-quest/actions/workflows/ci.yml)
-[![Deploy Status](https://img.shields.io/github/actions/workflow/status/SavvaSavelev/whisp-quest/deploy.yml?style=for-the-badge&label=🚀%20Deploy&logo=github)](https://github.com/SavvaSavelev/whisp-quest/actions/workflows/deploy.yml)
-[![Security](https://img.shields.io/github/actions/workflow/status/SavvaSavelev/whisp-quest/security.yml?style=for-the-badge&label=🔒%20Security&logo=github)](https://github.com/SavvaSavelev/whisp-quest/actions/workflows/security.yml)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/SavvaSavelev/whisp-quest/ci.yml?style=for-the-badge&label=🔄%20CI)](https://github.com/SavvaSavelev/whisp-quest/actions/workflows/ci.yml)
+[![Deploy Status](https://img.shields.io/github/actions/workflow/status/SavvaSavelev/whisp-quest/deploy.yml?style=for-the-badge&label=🚀%20Deploy)](https://github.com/SavvaSavelev/whisp-quest/actions/workflows/deploy.yml)
 
-[![Tests](https://img.shields.io/badge/Tests-30_Passing-brightgreen?style=for-the-badge&logo=jest)](https://github.com/SavvaSavelev/whisp-quest/actions)
-[![Coverage](https://img.shields.io/badge/Coverage-8.57%25-yellow?style=for-the-badge&logo=codecov)](https://codecov.io/gh/SavvaSavelev/whisp-quest)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5+-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-19.0-blue?style=for-the-badge&logo=react)](https://react.dev/)
-[![License](https://img.shields.io/badge/License-СТРОГО_АВТОРСКАЯ-red?style=for-the-badge)](./LICENSE_STRICT.md)
-
-Whisp Quest — инновационная экспериментальная платформа, где слова обладают силой призывать цифровых духов. Проект демонстрирует enterprise-level архитектуру с использованием современных технологий: React 19, Three.js и OpenAI API.
+Whisp Quest — инновационная платформа, где слова обладают силой призывать цифровых духов. Проект демонстрирует современную архитектуру с React 19, Three.js и OpenAI API.
 
 ---
 
-## 🚀 Основные возможности
+## 🚀 Возможности
 
-### 🎭 **Интерактивное взаимодействие**
-- **🧙‍♂️ AI-генерация духов** — OpenAI анализирует текст и создает уникальных духов
-- **💬 Динамические диалоги** — Полноценное общение с призванными духами
-- **🎨 3D визуализация** — Immersive рендеринг с Three.js и WebGL
-- **🌊 Плавные анимации** — Framer Motion для smooth переходов
-
-### 🏗️ **Enterprise архитектура**
-- **⚡ Высокая производительность** — Оптимизированный рендеринг и кэширование
-- **📱 Адаптивный дизайн** — Работает на desktop и mobile устройствах
-- **🔒 Enterprise безопасность** — Профессиональные меры защиты и аудит
-- **🧪 Комплексное тестирование** — 30 тестов с покрытием кода
-
-### 🔄 **DevOps & CI/CD**
-- **📦 Автоматизированная доставка** — GitHub Actions с 4 workflow'ами
-- **🔍 Непрерывная интеграция** — Automated testing, linting, security scans
-- **🚀 Zero-downtime деплоймент** — GitHub Pages с автоматическим обновлением
-- **📊 Мониторинг качества** — ESLint, TypeScript, Jest, Security audits
+- **🧙‍♂️ AI-генерация духов** — OpenAI создает уникальных духов из текста
+- **💬 Интерактивные диалоги** — Полноценное общение с духами
+- **🎨 3D визуализация** — Three.js рендеринг и анимации
+- **🌌 Галактика духов** — Красивое отображение коллекции
+- **🚀 AI-миссии** — Коллективный разум духов для решения задач
+- **📱 Адаптивный дизайн** — Работает на всех устройствах
 
 ---
 
-## 🏗️ Техническая архитектура
+## 🛠️ Технологии
 
-### **📋 Stack Overview**
+### Frontend
+- **React 19** — Современный UI фреймворк
+- **TypeScript 5.5+** — Типизированный JavaScript
+- **Three.js** — 3D графика и анимации
+- **Tailwind CSS** — Утилитарный CSS
+- **Framer Motion** — Анимации и переходы
+- **Zustand** — Управление состоянием
+
+### Backend
+- **Express.js** — Node.js сервер
+- **OpenAI API** — AI-генерация контента
+- **CORS** — Безопасность API
+- **Rate Limiting** — Защита от спама
+
+### DevOps
+- **Vite** — Быстрая сборка
+- **Docker** — Контейнеризация
+- **GitHub Actions** — CI/CD
+- **GitHub Pages** — Хостинг
+- **Jest** — Тестирование
+
+---
+
+## 🏃‍♂️ Быстрый старт
+
+### 1. Клонирование
+```bash
+git clone https://github.com/SavvaSavelev/whisp-quest.git
+cd whisp-quest
 ```
-┌─────────────────────────────────────────────────┐
-│                  Frontend                       │
+
+### 2. Установка зависимостей
+```bash
+# Frontend
+npm install
+
+# Backend
+cd whisp-server
+npm install
+cd ..
+```
+
+### 3. Настройка окружения
+```bash
+# Создайте .env файлы
+cp .env.example .env
+cp whisp-server/.env.example whisp-server/.env
+
+# Добавьте OpenAI API ключ в whisp-server/.env
+OPENAI_API_KEY=your_openai_api_key_here
+```
+
+### 4. Запуск
+```bash
+# Development режим
+npm run dev          # Frontend (порт 5173)
+npm run dev:server   # Backend (порт 3002)
+
+# Или одной командой
+npm run dev:full
+```
+
+---
+
+## 🐳 Docker
+
+### Быстрый запуск
+```bash
+# Создайте .env с OpenAI ключом
+cp .env.production .env
+
+# Запустите с Docker
+./docker.bat start    # Windows
+./docker.sh start     # Linux/Mac
+
+# Или через npm
+npm run docker:start
+```
+
+### Доступные команды
+```bash
+./docker.bat build    # Сборка образов
+./docker.bat dev      # Development режим
+./docker.bat start    # Production режим
+./docker.bat stop     # Остановка
+./docker.bat logs     # Просмотр логов
+./docker.bat status   # Статус контейнеров
+./docker.bat clean    # Полная очистка
+```
+
+**Архитектура Docker:**
+- **Frontend**: React + Nginx (порт 80)
+- **Backend**: Express + OpenAI (порт 3002)
+- **Network**: Изолированная bridge сеть
+- **Security**: Непривилегированные пользователи, health checks
+
+---
+
+## 📋 Доступные скрипты
+
+### Frontend
+```bash
+npm run dev          # Development сервер
+npm run build        # Production сборка
+npm run preview      # Предпросмотр сборки
+npm run lint         # ESLint проверка
+npm run lint:fix     # Автоисправление ESLint
+npm run test         # Запуск тестов
+npm run test:watch   # Тесты в watch режиме
+npm run test:coverage # Покрытие кода
+npm run type-check   # TypeScript проверка
+```
+
+### Backend
+```bash
+cd whisp-server
+npm start           # Production сервер
+npm run dev         # Development сервер
+npm test           # Запуск тестов
+npm run health     # Проверка здоровья
+```
+
+### Docker
+```bash
+npm run docker:build    # Сборка образов
+npm run docker:dev      # Development
+npm run docker:start    # Production
+npm run docker:stop     # Остановка
+npm run docker:logs     # Логи
+npm run docker:status   # Статус
+npm run docker:clean    # Очистка
+```
+
+---
+
+## 🏗️ Структура проекта
+
+```
+whisp-quest/
+├── src/                          # Frontend исходники
+│   ├── components/              # React компоненты
+│   │   ├── UI/                 # UI компоненты
+│   │   ├── Atelier/           # 3D сцены
+│   │   └── Optimized/         # Оптимизированные компоненты
+│   ├── hooks/                  # Custom hooks
+│   ├── lib/                    # Утилиты и библиотеки
+│   ├── store/                  # Zustand stores
+│   └── styles/                 # CSS стили
+├── whisp-server/               # Backend сервер
+│   ├── server.js              # Express сервер
+│   └── tests/                 # Серверные тесты
+├── public/                     # Статические файлы
+├── .github/                    # GitHub Actions
+├── docker-compose.yml         # Docker оркестрация
+├── Dockerfile                 # Frontend образ
+└── nginx.conf                # Nginx конфигурация
+```
+
+---
+
+## 🔧 Конфигурация
+
+### Environment Variables
+```env
+# Frontend (.env)
+VITE_API_BASE=http://localhost:3002/api/v1
+
+# Backend (whisp-server/.env)
+OPENAI_API_KEY=your_openai_api_key_here
+PORT=3002
+NODE_ENV=development
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100
+```
+
+### Порты
+- **5173**: Frontend development
+- **3002**: Backend API
+- **80**: Docker frontend (Nginx)
+
+---
+
+## 🧪 Тестирование
+
+```bash
+# Все тесты
+npm test
+
+# С покрытием
+npm run test:coverage
+
+# Watch режим
+npm run test:watch
+
+# Backend тесты
+cd whisp-server && npm test
+```
+
+**Текущее покрытие:** 30 тестов, различные компоненты и утилиты
+
+---
+
+## 🚀 Деплоймент
+
+### GitHub Pages (автоматический)
+1. Push в `main` ветку
+2. GitHub Actions автоматически собирает и деплоит
+3. Проект доступен на: https://savvasavelev.github.io/whisp-quest
+
+### Docker Production
+```bash
+# Локальный production
+docker-compose -f docker-compose.prod.yml up -d
+
+# С ресурсными лимитами и мониторингом
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+---
+
+## 🔒 Безопасность
+
+- **API Rate Limiting** — Защита от спама
+- **CORS политики** — Контроль доступа
+- **Helmet.js** — HTTP заголовки безопасности
+- **Environment secrets** — Безопасное хранение ключей
+- **Docker security** — Непривилегированные пользователи
+- **Dependency scanning** — Автоматический аудит зависимостей
+
+---
+
+## 🤝 Разработка
+
+### Workflow
+1. Форкните проект
+2. Создайте feature ветку
+3. Внесите изменения
+4. Запустите тесты: `npm test`
+5. Проверьте линтинг: `npm run lint`
+6. Создайте Pull Request
+
+### Code Style
+- **ESLint** — Статический анализ кода
+- **Prettier** — Форматирование кода
+- **TypeScript** — Строгая типизация
+- **Conventional Commits** — Стандарт коммитов
+
+---
+
+## 📝 Лицензия
+
+© 2025 Савва Савельев Андреевич. Все права защищены.
+
+Этот проект защищен авторским правом. Использование, копирование, модификация или распространение без явного письменного разрешения запрещено.
+
+---
+
+## 📞 Контакты
+
+- **GitHub**: [@SavvaSavelev](https://github.com/SavvaSavelev)
+- **Project**: [whisp-quest](https://github.com/SavvaSavelev/whisp-quest)
+- **Live Demo**: [https://savvasavelev.github.io/whisp-quest](https://savvasavelev.github.io/whisp-quest)
+
+---
+
+*Made with ❤️ and advanced AI technologies*
 ├─────────────────────────────────────────────────┤
 │ React 19 + TypeScript + Three.js + Tailwind    │
 │ Vite + ESBuild + Framer Motion + Zustand       │

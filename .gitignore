@@ -18,6 +18,11 @@ dist-ssr
 build
 *.local
 
+# Docker
+.env
+!.env.production
+docker-compose.override.yml
+
 # Testing
 coverage
 .nyc_output
