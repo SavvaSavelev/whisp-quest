@@ -51,7 +51,43 @@ export const SpiritAtelier: React.FC = () => {
   );
 
   return (
-    <div className="w-screen h-screen relative overflow-hidden">
+    <div className="w-screen h-screen relative overflow-hidden bg-slate-900">
+      {/* AI CYBER BACKGROUND */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-cyan-900">
+        {/* Animated cyber grid */}
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: `
+            linear-gradient(rgba(0, 255, 255, 0.3) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 255, 0.3) 1px, transparent 1px)
+          `,
+            backgroundSize: "60px 60px",
+            animation: "grid-move 25s linear infinite",
+          }}
+        />
+
+        {/* Neural network particles */}
+        {[...Array(40)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-cyan-400 rounded-full animate-ping cyber-glow"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${2 + Math.random() * 3}s`,
+            }}
+          />
+        ))}
+
+        {/* Data streams */}
+        <div className="absolute inset-0 data-particles opacity-10" />
+
+        {/* Holographic overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-cyan-500/5 to-purple-500/5 animate-pulse" />
+      </div>
+
       {/* УЛЬТРА КРУТОЙ фон */}
       <UltraBackground />
 
@@ -65,21 +101,22 @@ export const SpiritAtelier: React.FC = () => {
         }}
       >
         <Suspense fallback={null}>
-          {/* Духи без старого фона */}
+          {/* AI Spirits с кибер-эффектами */}
           {rendered}
         </Suspense>
 
-        {/* Мягкое освещение для духов */}
-        <ambientLight intensity={0.8} />
-        <pointLight position={[10, 10, 10]} intensity={0.5} color="#ffffff" />
-        <pointLight position={[-10, -10, 5]} intensity={0.3} color="#8b5cf6" />
-        <pointLight position={[0, 10, -5]} intensity={0.3} color="#3b82f6" />
+        {/* Кибер-освещение для духов */}
+        <ambientLight intensity={0.9} color="#e0f2fe" />
+        <pointLight position={[10, 10, 10]} intensity={0.6} color="#00ffff" />
+        <pointLight position={[-10, -10, 5]} intensity={0.4} color="#ff00ff" />
+        <pointLight position={[0, 10, -5]} intensity={0.4} color="#ffff00" />
+        <pointLight position={[5, -5, 8]} intensity={0.3} color="#00ff00" />
       </Canvas>
 
       {/* Нижняя панель диалога - временно закомментировано
       <GossipBar />
       */}
-      {/* Боковая панель архива */}
+      {/* Боковая панель архива с кибер-стилем */}
       <SpiritArchiveBar />
     </div>
   );

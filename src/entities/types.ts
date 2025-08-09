@@ -9,7 +9,6 @@ export interface Spirit {
   originText?: string;
   position: [number, number, number];
   birthDate?: string;
-  
 }
 
 export interface SpiritGossip {
@@ -18,18 +17,41 @@ export interface SpiritGossip {
   text: string;
 }
 
+// 🚀 TECH FEATURE SYSTEM - МЕГА УЛЬТРА КРУТЫЕ ФИЧИ ОТ ДУХОВ!
+export interface TechFeature {
+  id: string;
+  title: string;
+  description: string;
+  techStack: string[];
+  difficulty: "Junior" | "Middle" | "Senior" | "Lead" | "CTO";
+  category:
+    | "Frontend"
+    | "Backend"
+    | "DevOps"
+    | "AI/ML"
+    | "Mobile"
+    | "Architecture"
+    | "Performance"
+    | "Security";
+  estimatedTime: string;
+  codeExample?: string;
+  benefits: string[];
+  createdBy: string; // ID духа
+  createdAt: string;
+  upvotes: number;
+  status: "Proposed" | "In Progress" | "Implemented" | "Rejected";
+  priority: "Low" | "Medium" | "High" | "Critical";
+}
 
-  
-  export type SpiritMood =
-    | "радостный"
-    | "печальный"
-    | "злой"
-    | "вдохновлённый"
-    | "спокойный"
-    | "сонный"
-    | "испуганный"
-    | "игривый"
-    | "меланхоличный";
-  
-  export type SpiritRarity = "обычный" | "редкий" | "легендарный";
-  
+export type SpiritMood =
+  | "радостный"
+  | "печальный"
+  | "злой"
+  | "вдохновлённый"
+  | "спокойный"
+  | "сонный"
+  | "испуганный"
+  | "игривый"
+  | "меланхоличный";
+
+export type SpiritRarity = "обычный" | "редкий" | "легендарный";

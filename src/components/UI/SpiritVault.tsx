@@ -269,10 +269,18 @@ export function SpiritVault({
         
         .cosmic-bg {
           background: 
-            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%),
-            linear-gradient(135deg, #0c0c1e 0%, #1a1a2e 50%, #16213e 100%);
+            radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(255, 255, 0, 0.15) 0%, transparent 50%),
+            linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 25%, #2a1a3e 50%, #0a2a3e 75%, #0a0a2a 100%);
+        }
+        
+        .cyber-grid {
+          background-image: 
+            linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+          background-size: 80px 80px;
+          animation: grid-move 30s linear infinite;
         }
         
         .spirit-card-hover {
@@ -285,39 +293,73 @@ export function SpiritVault({
       `}</style>
 
       <div className="fixed inset-0 z-50 cosmic-bg">
-        <div className="vault-appear h-full flex flex-col">
-          {/* Космические звезды на фоне */}
+        {/* AI CYBER GRID BACKGROUND */}
+        <div className="absolute inset-0 cyber-grid opacity-30" />
+
+        {/* Neural particles */}
+        <div className="absolute inset-0">
+          {Array.from({ length: 60 }, (_, i) => (
+            <div
+              key={`particle-${i}`}
+              className="absolute w-1 h-1 bg-cyan-400 rounded-full animate-ping cyber-glow"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${2 + Math.random() * 3}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="vault-appear h-full flex flex-col relative z-10">
+          {/* Cyber звезды на фоне */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {Array.from({ length: 50 }, (_, i) => (
+            {Array.from({ length: 80 }, (_, i) => (
               <div
                 key={`star-${i}`}
-                className="absolute w-1 h-1 bg-white rounded-full star-twinkle"
+                className={`absolute w-1 h-1 rounded-full star-twinkle ${
+                  i % 3 === 0
+                    ? "bg-cyan-400"
+                    : i % 3 === 1
+                    ? "bg-purple-400"
+                    : "bg-pink-400"
+                }`}
                 style={{
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 2}s`,
+                  animationDelay: `${Math.random() * 3}s`,
+                  filter: "drop-shadow(0 0 4px currentColor)",
                 }}
               />
             ))}
           </div>
 
-          {/* Компактная шапка */}
-          <div className="relative z-10 p-4 bg-black/50 backdrop-blur-md border-b border-white/20">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  🌌 Хранилище
-                </h1>
-                <div className="text-slate-300 text-sm">
-                  {stats.total} духов • ❤️ {favoriteSpirits.size} избранных
+          {/* AI CYBER ШАПКА */}
+          <div className="relative z-10 p-6 bg-black/60 backdrop-blur-xl border-b border-cyan-500/30">
+            {/* Анимированная подложка */}
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 animate-pulse" />
+
+            <div className="relative z-10 flex justify-between items-center">
+              <div className="flex items-center gap-6">
+                <div className="relative">
+                  <h1 className="text-3xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent font-mono tracking-wider">
+                    🌌 NEURAL GALAXY
+                  </h1>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 blur-lg rounded-lg opacity-50" />
+                </div>
+                <div className="text-cyan-200 text-sm font-mono bg-black/40 px-3 py-1 rounded-lg border border-cyan-500/30">
+                  <span className="text-cyan-400">⚡</span> {stats.total} AI
+                  Spirits • <span className="text-purple-400">❤️</span>{" "}
+                  {favoriteSpirits.size} Favorites
                 </div>
               </div>
 
               <button
                 onClick={onClose}
-                className="px-4 py-2 bg-red-500/20 hover:bg-red-500/40 text-white rounded-lg border border-red-400/30 hover:border-red-400/60 transition-all backdrop-blur-sm"
+                className="px-6 py-3 bg-gradient-to-r from-red-600/80 to-pink-600/80 hover:from-red-500/80 hover:to-pink-500/80 text-white rounded-xl border-2 border-red-400/50 hover:border-red-300/70 transition-all backdrop-blur-sm font-mono font-bold uppercase tracking-wide shadow-lg hover:shadow-red-400/25"
               >
-                ✕ Закрыть
+                ✕ CLOSE NEURAL LINK
               </button>
             </div>
           </div>

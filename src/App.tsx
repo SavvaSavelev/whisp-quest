@@ -7,8 +7,10 @@ import { AppLoader } from "./components/UI/AppLoader";
 import { DiaryPage } from "./components/UI/DiaryPage";
 // Временно закомментировано
 // import { GossipBar } from "./components/UI/GossipBar";
+import { FloatingTechArchitect } from "./components/UI/FloatingTechArchitect";
 import { SpiritDialogueModal } from "./components/UI/SpiritDialogueModal";
 import { SpiritVault } from "./components/UI/SpiritVault";
+import { TechFeatureModal } from "./components/UI/TechFeatureModal";
 import { useInitAssets } from "./hooks/useInitAssets";
 import { useResetGossipOnStorage } from "./hooks/useResetGossipOnStorage";
 import { AppProviders } from "./providers";
@@ -31,6 +33,8 @@ function getLoadingMessage(progress: number): string {
 function App() {
   const showStorage = useUIStore((state) => state.showStorage);
   const setShowStorage = useUIStore((state) => state.setShowStorage);
+  const showTechFeatures = useUIStore((state) => state.showTechFeatures);
+  const setShowTechFeatures = useUIStore((state) => state.setShowTechFeatures);
   const debugMode = useAppStore((state) => state.debugMode);
   const ready = useInitAssets();
   const [appProgress, setAppProgress] = useState(0);
@@ -231,18 +235,22 @@ function App() {
         )}
 
         {/* Кнопки действий - рендерим в самом конце для максимального z-index */}
-        {!showStorage && (
-          <div className="fixed top-6 left-6 z-[9999] pointer-events-auto flex gap-2">
-            <button
-              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium text-sm rounded-lg hover:scale-105 transition-all duration-200 shadow-2xl border-2 border-white/30 backdrop-blur-sm"
-              onClick={() => setShowStorage(true)}
-              style={{ position: "relative", zIndex: 10000 }}
-            >
-              🌌 Галактика
-            </button>
+        {!showStorage && !showTechFeatures && (
+          <div className="fixed top-6 left-6 z-[9999] pointer-events-auto flex gap-3">
+            <GalaxyLauncher />
+            <VaultTechLauncher />
             <AIMissionLauncher />
           </div>
         )}
+
+        {/* TechFeature модалка */}
+        <TechFeatureModal
+          show={showTechFeatures}
+          onClose={() => setShowTechFeatures(false)}
+        />
+
+        {/* Floating Tech Architect - показывается только когда открыто тех хранилище */}
+        {showTechFeatures && <FloatingTechArchitect />}
 
         {/* Модалка AI‑миссии */}
         <AIMissionModal />
@@ -253,17 +261,141 @@ function App() {
 
 export default App;
 
+// 🌌 GALAXY LAUNCHER - КИБЕР ГАЛАКТИКА!
+const GalaxyLauncher: React.FC = () => {
+  const setShowStorage = useUIStore((s) => s.setShowStorage);
+  return (
+    <button
+      className="group relative px-5 py-3 text-white font-bold text-sm rounded-xl hover:scale-105 transition-all duration-300 shadow-2xl border-2 backdrop-blur-md overflow-hidden"
+      onClick={() => setShowStorage(true)}
+      style={{
+        position: "relative",
+        zIndex: 10000,
+        background:
+          "linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #3730a3 50%, #1d4ed8 75%, #2563eb 100%)",
+        borderImage: "linear-gradient(45deg, #60a5fa, #a78bfa, #f472b6) 1",
+        boxShadow: "0 0 30px rgba(59, 130, 246, 0.5)",
+      }}
+      title="Открыть Галактику Духов"
+    >
+      {/* Звёздное поле */}
+      <div className="absolute inset-0 opacity-30">
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white rounded-full animate-ping"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${1 + Math.random() * 2}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Анимированный неоновый градиент */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 animate-pulse transition-opacity duration-300" />
+
+      <div className="relative z-10 flex items-center gap-2">
+        <span
+          className="text-xl animate-spin"
+          style={{ animationDuration: "3s" }}
+        >
+          🌌
+        </span>
+        <span className="font-mono uppercase tracking-wider">
+          Neural Galaxy
+        </span>
+        <span className="text-lg animate-bounce">✨</span>
+      </div>
+    </button>
+  );
+};
+
 // Локальная кнопка‑ланчер для AI‑миссии (отдельно, чтобы не засорять компонент App)
 const AIMissionLauncher: React.FC = () => {
   const setShowMission = useUIStore((s) => s.setShowMission);
   return (
     <button
-      className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-medium text-sm rounded-lg hover:scale-105 transition-all duration-200 shadow-2xl border-2 border-white/30 backdrop-blur-sm"
+      className="group relative px-5 py-3 text-white font-bold text-sm rounded-xl hover:scale-105 transition-all duration-300 shadow-2xl border-2 backdrop-blur-md overflow-hidden"
       onClick={() => setShowMission(true)}
-      style={{ position: "relative", zIndex: 10000 }}
+      style={{
+        position: "relative",
+        zIndex: 10000,
+        background:
+          "linear-gradient(135deg, #065f46 0%, #047857 25%, #059669 50%, #10b981 75%, #34d399 100%)",
+        borderImage: "linear-gradient(45deg, #6ee7b7, #34d399, #a7f3d0) 1",
+        boxShadow: "0 0 30px rgba(52, 211, 153, 0.5)",
+      }}
       title="Запустить AI‑миссию"
     >
-      🚀 Миссия
+      {/* Нейронная сеть фон */}
+      <div className="absolute inset-0 opacity-20">
+        <svg className="w-full h-full">
+          {[...Array(8)].map((_, i) => (
+            <circle
+              key={i}
+              cx={`${20 + (i % 3) * 30}%`}
+              cy={`${30 + Math.floor(i / 3) * 30}%`}
+              r="2"
+              fill="currentColor"
+              className="animate-pulse"
+              style={{ animationDelay: `${i * 0.2}s` }}
+            />
+          ))}
+        </svg>
+      </div>
+
+      {/* Анимированный блеск */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shine" />
+
+      <div className="relative z-10 flex items-center gap-2">
+        <span className="text-lg animate-bounce">🚀</span>
+        <span className="font-mono uppercase tracking-wider">AI Mission</span>
+        <span className="text-lg animate-pulse">🤖</span>
+      </div>
+    </button>
+  );
+};
+
+// 🚀 VAULT TECH LAUNCHER - МЕГА ЭПИЧНАЯ КНОПКА!
+const VaultTechLauncher: React.FC = () => {
+  const setShowTechFeatures = useUIStore((s) => s.setShowTechFeatures);
+  return (
+    <button
+      className="group relative px-5 py-3 text-white font-bold text-sm rounded-xl hover:scale-105 transition-all duration-300 shadow-2xl border-2 backdrop-blur-md overflow-hidden"
+      onClick={() => setShowTechFeatures(true)}
+      style={{
+        position: "relative",
+        zIndex: 10000,
+        background:
+          "linear-gradient(135deg, #7c2d12 0%, #dc2626 25%, #ea580c 50%, #f59e0b 75%, #eab308 100%)",
+        borderImage: "linear-gradient(45deg, #fbbf24, #f59e0b, #dc2626) 1",
+        boxShadow: "0 0 30px rgba(245, 158, 11, 0.5)",
+      }}
+      title="Открыть VAULT TECH"
+    >
+      {/* Кибер-сетка фон */}
+      <div
+        className="absolute inset-0 opacity-20"
+        style={{
+          backgroundImage: `
+          linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+        `,
+          backgroundSize: "8px 8px",
+        }}
+      />
+
+      {/* Анимированный блеск */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shine" />
+
+      <div className="relative z-10 flex items-center gap-2">
+        <span className="text-lg animate-bounce">⚡</span>
+        <span className="font-mono uppercase tracking-wider">Vault Tech</span>
+        <span className="text-lg animate-pulse">🧠</span>
+      </div>
     </button>
   );
 };

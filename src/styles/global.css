@@ -1,27 +1,89 @@
-/* Темы для модального окна хранилища */
+/* AI CYBER ТЕМЫ ДЛЯ МОДАЛЬНЫХ ОКОН */
 .theme-dark {
-  background: rgba(24, 24, 27, 0.85);
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
   backdrop-filter: blur(24px);
+  position: relative;
 }
+
+.theme-dark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at 20% 20%,
+      rgba(0, 255, 255, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(255, 0, 255, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 60%,
+      rgba(255, 255, 0, 0.05) 0%,
+      transparent 50%
+    );
+  z-index: -1;
+}
+
 .theme-gradient {
-  background: linear-gradient(135deg, #6366f1 0%, #312e81 100%);
+  background: linear-gradient(
+    135deg,
+    #6366f1 0%,
+    #8b5cf6 25%,
+    #ec4899 50%,
+    #f59e0b 75%,
+    #10b981 100%
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 8s ease infinite;
   backdrop-filter: blur(16px);
 }
+
 .theme-stars {
-  background: #18181b url("/whisp-quest/assets/bg/atelier-bg.png") repeat center
-    center;
+  background: #0a0a0a
+      radial-gradient(
+        circle at 10% 20%,
+        rgba(0, 255, 255, 0.3) 0%,
+        transparent 20%
+      ),
+    radial-gradient(
+      circle at 80% 10%,
+      rgba(255, 0, 255, 0.2) 0%,
+      transparent 20%
+    ),
+    radial-gradient(
+      circle at 90% 90%,
+      rgba(255, 255, 0, 0.1) 0%,
+      transparent 20%
+    );
   background-size: cover;
   backdrop-filter: blur(8px);
+  position: relative;
 }
-/* Темы для модального окна хранилища */
-.theme-dark {
-  background: linear-gradient(135deg, #18181b 0%, #312e81 100%);
+
+.theme-stars::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: grid-move 20s linear infinite;
+  z-index: -1;
 }
+
+/* ДОПОЛНИТЕЛЬНЫЕ КИБЕР ТЕМЫ */
 .theme-light {
-  background: linear-gradient(135deg, #f3f4f6 0%, #c7d2fe 100%);
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 50%, #fdf4ff 100%);
+  backdrop-filter: blur(12px);
 }
+
 .theme-moon {
-  background: linear-gradient(135deg, #232946 0%, #6366f1 100%);
+  background: linear-gradient(135deg, #0c0a1e 0%, #1e1b4b 50%, #312e81 100%);
+  backdrop-filter: blur(20px);
+  position: relative;
 }
 
 /* Ultra-modern animations for AI Mission Modal */
@@ -423,6 +485,135 @@
   50% {
     transform: translateY(-8px) scale(1.02);
   }
+}
+
+/* AI CYBER ANIMATIONS */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes grid-move {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+@keyframes cyber-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes neural-flow {
+  0% {
+    background-position: 0% 50%;
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: hue-rotate(180deg);
+  }
+  100% {
+    background-position: 0% 50%;
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes data-stream {
+  0% {
+    transform: translateX(-100%) translateY(0);
+  }
+  100% {
+    transform: translateX(100vw) translateY(-100vh);
+  }
+}
+
+@keyframes hologram-glitch {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  20% {
+    opacity: 0.8;
+    transform: translateX(-2px);
+  }
+  40% {
+    opacity: 1;
+    transform: translateX(2px);
+  }
+  60% {
+    opacity: 0.9;
+    transform: translateX(-1px);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(1px);
+  }
+}
+
+/* UTILITY CLASSES FOR CYBER EFFECTS */
+.cyber-glow {
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.cyber-glow-strong {
+  filter: drop-shadow(0 0 20px currentColor) drop-shadow(0 0 40px currentColor);
+}
+
+.neural-border {
+  border-image: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff) 1;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.hologram-text {
+  background: linear-gradient(
+    45deg,
+    #00ffff 25%,
+    transparent 25%,
+    transparent 75%,
+    #00ffff 75%
+  );
+  background-size: 4px 4px;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: hologram-glitch 3s ease-in-out infinite;
+}
+
+.data-particles {
+  position: relative;
+  overflow: hidden;
+}
+
+.data-particles::before {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #00ffff;
+  border-radius: 50%;
+  animation: data-stream 3s linear infinite;
+  box-shadow: 0 0 6px #00ffff, 20px 20px 0 #ff00ff, 40px 40px 0 #ffff00,
+    60px 60px 0 #00ffff;
 }
 
 .spirit-float {
