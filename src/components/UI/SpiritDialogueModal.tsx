@@ -1,5 +1,4 @@
 // src/components/UI/SpiritDialogueModal.tsx
-import { format } from "date-fns";
 import React, { useEffect, useRef, useState } from "react";
 import { getMoodTexture } from "../../lib/getMoodTexture";
 import { soundManager } from "../../lib/soundEffects";
@@ -50,15 +49,6 @@ function getRarityStyle(rarity: string): string {
   return "bg-gradient-to-r from-green-500 to-emerald-500 shadow-[0_0_20px_#10b981]";
 }
 
-// Константы для частиц
-const PARTICLES = Array.from({ length: 8 }, (_, i) => ({
-  id: `particle-${i}`,
-  left: Math.random() * 100,
-  top: Math.random() * 100,
-  duration: 2 + Math.random() * 3,
-  delay: Math.random() * 2,
-}));
-
 export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
   showStorage,
   selectedSpiritId,
@@ -70,12 +60,9 @@ export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
   persona,
 }) => {
   const { spirit, isOpen, closeModal } = useSpiritModalStore();
-  const {
-    removeSpirit: removeFromArchive,
-    clearArchive,
-    spirits: archivedSpirits,
-  } = useSpiritArchiveStore();
-  const { removeSpirit: removeFromScene, setSpirits } = useSpiritStore();
+  const { removeSpirit: removeFromArchive, spirits: archivedSpirits } =
+    useSpiritArchiveStore();
+  const { removeSpirit: removeFromScene } = useSpiritStore();
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -288,22 +275,6 @@ export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
     }
   };
 
-  const handleClearAll = () => {
-    if (
-      confirm(
-        "Вы уверены, что хотите удалить ВСЕХ духов? Это действие нельзя отменить!"
-      )
-    ) {
-      clearArchive();
-      setSpirits([]);
-      // очистим все сохранённые чаты
-      Object.keys(localStorage)
-        .filter((key) => key.startsWith("chatLog-"))
-        .forEach((key) => localStorage.removeItem(key));
-      closeModal();
-    }
-  };
-
   const handleClose = () => {
     soundManager.playSound("modal-close");
     // Отменяем стрим если он активен
@@ -313,333 +284,139 @@ export const SpiritDialogueModal: React.FC<SpiritDialogueModalProps> = ({
     closeModal();
   };
 
-  // Определяем цвет ауры на основе редкости
-  const getRarityGlow = (rarity: string) => {
-    switch (rarity) {
-      case "легендарный":
-        return "shadow-[0_0_30px_#ffd700,0_0_60px_#ffd700,0_0_90px_#ffd700]";
-      case "эпический":
-        return "shadow-[0_0_25px_#9333ea,0_0_50px_#9333ea]";
-      case "редкий":
-        return "shadow-[0_0_20px_#3b82f6,0_0_40px_#3b82f6]";
-      default:
-        return "shadow-[0_0_15px_#10b981,0_0_30px_#10b981]";
-    }
-  };
-
   return (
-    <>
-      <style>{`
-        @keyframes modalSlideIn {
-          from {
-            opacity: 0;
-            transform: scale(0.9) translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-        
-        @keyframes spiritGlow {
-          0%, 100% { filter: brightness(1) hue-rotate(0deg); }
-          50% { filter: brightness(1.2) hue-rotate(10deg); }
-        }
-        
-        @keyframes typing {
-          0%, 20% { opacity: 0.4; }
-          50% { opacity: 1; }
-          100% { opacity: 0.4; }
-        }
-        
-        @keyframes backgroundShimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        
-        .spirit-avatar {
-          animation: spiritGlow 4s ease-in-out infinite;
-        }
-        
-        .typing-dots {
-          animation: typing 1.4s infinite;
-        }
-        
-        .typing-dots:nth-child(2) {
-          animation-delay: 0.2s;
-        }
-        
-        .typing-dots:nth-child(3) {
-          animation-delay: 0.4s;
-        }
-        
-        .chat-bubble {
-          animation: slideUp 0.3s ease-out;
-        }
-        
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .modal-appear {
-          animation: modalSlideIn 0.3s ease-out;
-        }
-        
-        .shimmer-bg {
-          background: linear-gradient(
-            90deg,
-            rgba(51, 65, 85, 0.8) 0%,
-            rgba(71, 85, 105, 0.9) 50%,
-            rgba(51, 65, 85, 0.8) 100%
-          );
-          background-size: 200% 100%;
-          animation: backgroundShimmer 3s ease-in-out infinite;
-        }
-        
-        .particle-trail {
-          position: absolute;
-          width: 4px;
-          height: 4px;
-          background: radial-gradient(circle, rgba(147, 197, 253, 0.8) 0%, transparent 70%);
-          border-radius: 50%;
-          pointer-events: none;
-          animation: particleFloat 2s ease-out forwards;
-        }
-        
-        @keyframes particleFloat {
-          0% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-          100% {
-            opacity: 0;
-            transform: translateY(-20px) scale(0);
-          }
-        }
-      `}</style>
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
+      <div className="w-full max-w-lg bg-slate-800/90 backdrop-blur-xl border-2 border-indigo-400/30 rounded-3xl shadow-2xl pointer-events-auto overflow-hidden">
+        {/* Заголовок с аватаром духа */}
+        <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-6 text-center relative">
+          {/* Закрыть */}
+          <button
+            onClick={handleClose}
+            className="absolute top-3 right-3 text-slate-400 hover:text-white transition-colors w-8 h-8 rounded-full bg-slate-700/50 hover:bg-red-500/50 flex items-center justify-center text-xl"
+          >
+            ×
+          </button>
 
-      <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
-        <div className="w-full max-w-2xl max-h-[90vh] overflow-hidden bg-slate-800/95 backdrop-blur-xl border border-slate-600/50 rounded-2xl shadow-2xl pointer-events-auto">
-          <div className="modal-appear text-white p-8 relative pointer-events-auto">
-            {/* Декоративные частицы */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {PARTICLES.map((particle) => (
-                <div
-                  key={particle.id}
-                  className="absolute w-1 h-1 bg-blue-400/30 rounded-full"
-                  style={{
-                    left: `${particle.left}%`,
-                    top: `${particle.top}%`,
-                    animation: `particleFloat ${particle.duration}s ease-out infinite`,
-                    animationDelay: `${particle.delay}s`,
-                  }}
-                />
-              ))}
-            </div>
+          <img
+            src={getMoodTexture(currentSpirit.mood)}
+            alt="Spirit Avatar"
+            className="w-20 h-20 mx-auto mb-3 rounded-full border-2 border-indigo-400/50 shadow-[0_0_20px_rgba(99,102,241,0.5)]"
+          />
 
-            {/* Закрыть */}
-            <button
-              onClick={handleClose}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors z-10 w-10 h-10 rounded-full bg-slate-700/50 hover:bg-red-500/50 flex items-center justify-center border border-slate-600/50 hover:border-red-400/50"
+          <h2 className="text-xl font-bold text-white mb-1">
+            {currentSpirit.essence}
+          </h2>
+
+          <div className="text-sm text-slate-300 flex justify-center gap-3">
+            <span className="bg-slate-700/50 px-2 py-1 rounded-full">
+              🎭 {currentSpirit.mood}
+            </span>
+            <span
+              className={`px-2 py-1 rounded-full text-xs ${getRarityStyle(
+                currentSpirit.rarity
+              )}`}
             >
-              ✕
-            </button>
+              ⭐ {currentSpirit.rarity}
+            </span>
+          </div>
 
-            {/* Заголовок с аватаром духа */}
-            <div className="text-center mb-6">
-              <div className="relative inline-block">
-                <img
-                  src={getMoodTexture(currentSpirit.mood)}
-                  alt="Spirit Avatar"
-                  className={`spirit-avatar w-32 h-32 mx-auto mb-4 rounded-full border-4 border-white/30 ${getRarityGlow(
-                    currentSpirit.rarity
-                  )}`}
-                  style={{
-                    filter: `hue-rotate(${
-                      currentSpirit.color ? "0deg" : "180deg"
-                    })`,
-                  }}
-                />
-                {/* Индикатор редкости */}
+          {currentSpirit.originText && (
+            <p className="text-xs text-slate-400 mt-2 italic">
+              «{currentSpirit.originText.slice(0, 80)}...»
+            </p>
+          )}
+        </div>
+
+        {/* Чат */}
+        <div className="p-4">
+          <div className="bg-slate-900/50 rounded-xl p-3 h-64 overflow-y-auto space-y-2 mb-4">
+            {chatLog.map((entry, idx) => (
+              <div
+                key={`${entry.timestamp}-${idx}`}
+                className={`flex ${
+                  entry.type === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
                 <div
-                  className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold border border-white/20 ${getRarityStyle(
-                    currentSpirit.rarity
-                  )}`}
-                >
-                  ⭐ {currentSpirit.rarity.toUpperCase()}
-                </div>
-              </div>
-
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
-                {currentSpirit.essence}
-              </h2>
-
-              <div className="flex justify-center items-center gap-4 text-sm text-slate-300 mb-2">
-                <span className="flex items-center gap-1 bg-slate-800/50 px-3 py-1 rounded-full">
-                  🎭{" "}
-                  <span className="text-white font-medium">
-                    {currentSpirit.mood}
-                  </span>
-                </span>
-                {currentSpirit.birthDate && (
-                  <span className="flex items-center gap-1 bg-slate-800/50 px-3 py-1 rounded-full">
-                    🕯️{" "}
-                    {format(new Date(currentSpirit.birthDate), "d.MM.yy HH:mm")}
-                  </span>
-                )}
-              </div>
-
-              {currentSpirit.originText && (
-                <p className="text-sm text-slate-400 italic bg-slate-800/50 rounded-lg p-3 mx-4 border border-slate-600/30">
-                  💭 «{currentSpirit.originText}»
-                </p>
-              )}
-            </div>
-
-            {/* Чат */}
-            <div className="bg-slate-800/30 rounded-2xl p-4 mb-6 h-80 overflow-y-auto space-y-3 border border-slate-600/30 backdrop-blur-sm">
-              {chatLog.map((entry, idx) => (
-                <div
-                  key={`${entry.timestamp}-${idx}`}
-                  className={`chat-bubble flex ${
-                    entry.type === "user" ? "justify-end" : "justify-start"
+                  className={`max-w-[85%] px-3 py-2 rounded-lg text-sm ${
+                    entry.type === "user"
+                      ? "bg-indigo-600 text-white"
+                      : "bg-slate-700 text-slate-100"
                   }`}
                 >
-                  <div
-                    className={`max-w-[80%] px-4 py-3 rounded-2xl border ${
-                      entry.type === "user"
-                        ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white ml-4 border-blue-500/30 shadow-lg"
-                        : "bg-gradient-to-r from-slate-700 to-slate-600 text-slate-100 mr-4 border-slate-500/30 shadow-lg"
-                    }`}
-                  >
-                    <p className="text-sm leading-relaxed">{entry.message}</p>
-                    <p className="text-xs opacity-70 mt-1 flex items-center gap-1">
-                      {entry.type === "user" ? "👤" : "👻"}{" "}
-                      {format(new Date(entry.timestamp), "HH:mm")}
-                    </p>
-                  </div>
+                  {entry.message}
                 </div>
-              ))}
-
-              {/* Анимация печатания или стриминга */}
-              {(typingAnimation || isStreaming) && (
-                <div className="flex justify-start">
-                  <div className="bg-gradient-to-r from-slate-700 to-slate-600 text-slate-100 px-4 py-3 rounded-2xl mr-4 border border-slate-500/30">
-                    {isStreaming && streamingText ? (
-                      <div>
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                          {streamingText}
-                        </p>
-                        <div className="flex items-center gap-1 mt-2 opacity-70">
-                          <span className="text-xs">👻 Дух рассказывает</span>
-                          <div className="flex gap-1 ml-2">
-                            <div className="typing-dots w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                            <div className="typing-dots w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
-                            <div className="typing-dots w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm">👻 Дух печатает</span>
-                        <div className="flex gap-1 ml-2">
-                          <div className="typing-dots w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
-                          <div className="typing-dots w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
-                          <div className="typing-dots w-1.5 h-1.5 bg-pink-400 rounded-full"></div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Ошибка стрима */}
-              {streamError && (
-                <div className="flex justify-start">
-                  <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-3 rounded-2xl mr-4 border border-red-500/30">
-                    <p className="text-sm">⚠️ {streamError}</p>
-                  </div>
-                </div>
-              )}
-
-              <div ref={chatEndRef} />
-            </div>
-
-            {/* Поле ввода */}
-            <div className="flex gap-3 mb-4">
-              <input
-                ref={inputRef}
-                className="flex-1 px-4 py-3 rounded-xl bg-slate-700/50 text-white text-sm border border-slate-600/50 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all backdrop-blur-sm"
-                value={userMessage}
-                onChange={(e) => setUserMessage(e.target.value)}
-                placeholder={`Спросите ${
-                  currentSpirit?.essence?.toLowerCase() || "духа"
-                }...`}
-                onKeyDown={(e) =>
-                  e.key === "Enter" && !e.shiftKey && askSpirit()
-                }
-                disabled={loading}
-                maxLength={500}
-              />
-              <button
-                onClick={askSpirit}
-                disabled={loading || !userMessage.trim() || isStreaming}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-slate-600 disabled:to-slate-700 rounded-xl text-sm font-medium transition-all duration-200 disabled:cursor-not-allowed flex items-center gap-2 border border-blue-500/30 hover:border-purple-400/50 disabled:border-slate-600/30"
-              >
-                {loading || isStreaming ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    {isStreaming ? "Стрим..." : "Отправка..."}
-                  </>
-                ) : (
-                  <>📨 Отправить</>
-                )}
-              </button>
-
-              {/* Кнопка отмены стрима */}
-              {isStreaming && onStreamCancel && (
-                <button
-                  onClick={onStreamCancel}
-                  className="px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 border border-red-500/30 hover:border-red-400/50"
-                >
-                  ⏹️ Остановить
-                </button>
-              )}
-            </div>
-
-            {/* Счетчик символов */}
-            <div className="text-xs text-slate-400 text-right mb-4">
-              {userMessage.length}/500 символов
-            </div>
-
-            {/* Нижние кнопки */}
-            <div className="flex justify-between gap-3 text-sm">
-              <button
-                onClick={handleDeleteSpirit}
-                className="px-4 py-2 rounded-xl bg-slate-700/50 hover:bg-red-600/50 transition-all duration-200 flex items-center gap-2 text-slate-300 hover:text-white border border-slate-600/30 hover:border-red-400/50"
-              >
-                🗑️ Удалить духа
-              </button>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={handleClearAll}
-                  className="px-4 py-2 rounded-xl bg-slate-700/50 hover:bg-red-700/50 transition-all duration-200 flex items-center gap-2 text-slate-300 hover:text-white border border-slate-600/30 hover:border-red-400/50"
-                >
-                  ☠️ Удалить всех
-                </button>
               </div>
-            </div>
+            ))}
+
+            {/* Анимация печатания */}
+            {(typingAnimation || isStreaming) && (
+              <div className="flex justify-start">
+                <div className="bg-slate-700 text-slate-100 px-3 py-2 rounded-lg text-sm">
+                  {isStreaming && streamingText ? (
+                    <span className="whitespace-pre-wrap">{streamingText}</span>
+                  ) : (
+                    <span>Дух печатает...</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {streamError && (
+              <div className="flex justify-start">
+                <div className="bg-red-600 text-white px-3 py-2 rounded-lg text-sm">
+                  ⚠️ {streamError}
+                </div>
+              </div>
+            )}
+
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Поле ввода */}
+          <div className="flex gap-2">
+            <input
+              ref={inputRef}
+              className="flex-1 px-3 py-2 rounded-lg bg-slate-700/50 text-white text-sm border border-slate-600 focus:border-indigo-400 focus:outline-none transition-colors"
+              value={userMessage}
+              onChange={(e) => setUserMessage(e.target.value)}
+              placeholder={`Спросите ${
+                currentSpirit?.essence?.toLowerCase() || "духа"
+              }...`}
+              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && askSpirit()}
+              disabled={loading}
+              maxLength={200}
+            />
+            <button
+              onClick={askSpirit}
+              disabled={loading || !userMessage.trim() || isStreaming}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-600 rounded-lg text-sm text-white transition-colors disabled:cursor-not-allowed"
+            >
+              {loading || isStreaming ? "⏳" : "📤"}
+            </button>
+
+            {isStreaming && onStreamCancel && (
+              <button
+                onClick={onStreamCancel}
+                className="px-3 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-sm text-white transition-colors"
+              >
+                ⏹️
+              </button>
+            )}
+          </div>
+
+          {/* Нижние кнопки */}
+          <div className="flex justify-between mt-3 text-xs">
+            <button
+              onClick={handleDeleteSpirit}
+              className="px-3 py-1 bg-slate-700/50 hover:bg-red-600/50 rounded text-slate-300 hover:text-white transition-colors"
+            >
+              🗑️ Удалить
+            </button>
+            <span className="text-slate-400">{userMessage.length}/200</span>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };

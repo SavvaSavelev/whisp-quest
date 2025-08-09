@@ -377,7 +377,7 @@ export const AIMissionModal: React.FC = () => {
                 ))}
                 {allSpirits.length > 12 && (
                   <div className="text-emerald-400/70 text-sm px-2 py-1">
-                    +{allSpirits.length - 12} еще...
+                    +{allSpirits.length - 12} ещё...
                   </div>
                 )}
               </div>

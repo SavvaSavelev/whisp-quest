@@ -7,6 +7,13 @@ export interface SpiritGossip {
   text?: string;
   question?: string;
   answer?: string;
+  // Новый тред из нескольких реплик
+  turns?: Array<{
+    speaker?: "from" | "to";
+    text: string;
+  }>;
+  messageId?: string;
+  timestamp?: string;
 }
 
 interface SpiritGossipStore {

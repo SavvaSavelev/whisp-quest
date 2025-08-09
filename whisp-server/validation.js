@@ -113,6 +113,16 @@ export const SpiritGossipRequestSchema = z
 export const SpiritGossipResponseSchema = z.object({
   question: z.string().min(1, "Вопрос не может быть пустым"),
   answer: z.string().min(1, "Ответ не может быть пустым"),
+  // Дополнительно: тред из нескольких реплик (необязателен для обратной совместимости)
+  turns: z
+    .array(
+      z.object({
+        speaker: z.enum(["from", "to"]).optional().default("from"),
+        text: z.string().min(1),
+      })
+    )
+    .min(2)
+    .optional(),
   messageId: z.string().min(1, "ID сообщения обязателен"),
   timestamp: z.string().datetime(),
 });

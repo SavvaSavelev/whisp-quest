@@ -21,6 +21,9 @@ export const spiritGossip = async (from: Spirit, to: Spirit) => {
       to,
       question: data.question || "...",
       answer: data.answer || "...",
+      turns: Array.isArray(data.turns) ? data.turns : undefined,
+      messageId: data.messageId,
+      timestamp: data.timestamp,
     };
   } catch (e) {
     console.error("❌ Ошибка spiritGossip.ts:", e);

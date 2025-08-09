@@ -1,11 +1,10 @@
+import { useTexture } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { Sprite } from "three";
-import { useTexture, Html } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
 import { Spirit } from "../../entities/types";
 import { getMoodTexture } from "../../lib/getMoodTexture";
 import { useSpiritModalStore } from "../../store/useSpiritModalStore";
-import { useSpiritGossipStore } from "../../store/useSpiritGossipStore";
 
 interface Props {
   spirit: Spirit;
@@ -13,13 +12,14 @@ interface Props {
   size?: number;
 }
 
-export const TexturedSpiritSprite = ({ spirit, position, size = 1.4 }: Props) => {
+export const TexturedSpiritSprite = ({
+  spirit,
+  position,
+  size = 1.4,
+}: Props) => {
   const ref = useRef<Sprite>(null);
   const texture = useTexture(getMoodTexture(spirit.mood));
   const [hovered, setHovered] = useState(false);
-
-  const gossip = useSpiritGossipStore((s) => s.currentGossip);
-  const isSpeaking = gossip?.from?.id === spirit.id;
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
@@ -53,13 +53,7 @@ export const TexturedSpiritSprite = ({ spirit, position, size = 1.4 }: Props) =>
         <spriteMaterial map={texture} transparent depthWrite={false} />
       </sprite>
 
-      {isSpeaking && gossip?.text && (
-        <Html position={[position[0], position[1] + 1.4, position[2]]}>
-          <div className="bg-white/10 backdrop-blur-md border border-white/30 text-white text-sm px-4 py-2 rounded-lg shadow-lg max-w-xs text-center animate-fade-in-out">
-            <span className="italic text-indigo-300">{gossip.text}</span>
-          </div>
-        </Html>
-      )}
+      {/* Убрал дублирующее окно - оно мешает */}
     </>
   );
 };

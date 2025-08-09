@@ -148,7 +148,16 @@ const MOOD_MAP = new Map([
   ["scared", "испуганный"],
 ]);
 function normalizeMood(mood) {
-  if (!mood) return "печальный";
+  if (!mood) {
+    // Если настроение не определено, возвращаем случайное положительное
+    const randomPositive = [
+      "радостный",
+      "спокойный",
+      "вдохновлённый",
+      "игривый",
+    ];
+    return randomPositive[Math.floor(Math.random() * randomPositive.length)];
+  }
   const m = String(mood).toLowerCase();
   if (ALLOWED_MOODS.has(m)) return m;
   if (MOOD_MAP.has(m)) return MOOD_MAP.get(m);
@@ -161,7 +170,17 @@ function normalizeMood(mood) {
   if (m.includes("испуг")) return "испуганный";
   if (m.includes("игрив")) return "игривый";
   if (m.includes("мелан")) return "меланхоличный";
-  return "печальный";
+  // Если ничего не подошло, возвращаем случайное настроение
+  const allMoods = [
+    "радостный",
+    "спокойный",
+    "вдохновлённый",
+    "игривый",
+    "печальный",
+    "злой",
+    "меланхоличный",
+  ];
+  return allMoods[Math.floor(Math.random() * allMoods.length)];
 }
 
 function normalizeHexColor(v, fallback = "#808080") {
@@ -247,12 +266,45 @@ app.post(
       return json(res, { ...cached, cached: true }, AnalyzeResponseSchema);
 
     if (MOCK) {
+      // Генерируем случайного мок-духа для разнообразия
+      const mockMoods = [
+        "радостный",
+        "спокойный",
+        "вдохновлённый",
+        "игривый",
+        "меланхоличный",
+      ];
+      const mockColors = [
+        "#33cc99",
+        "#ff6b6b",
+        "#4ecdc4",
+        "#45b7d1",
+        "#f39c12",
+        "#9b59b6",
+      ];
+      const mockRarities = ["обычный", "обычный", "редкий", "легендарный"];
+      const mockEssences = [
+        "искрящийся комар доверия",
+        "танцующий ветер мысли",
+        "шепчущая тень вдохновения",
+        "сияющий осколок радости",
+        "дремлющий хранитель снов",
+      ];
+      const mockDialogues = [
+        "Ну давай, удиви меня ещё одним шедевром самокритики.",
+        "О, кто-то призвал меня из глубин подсознания!",
+        "Интересно... твои мысли имеют необычный аромат.",
+        "Я чувствую... энергию перемен в твоих словах.",
+        "Хм, позволь мне поразмыслить над этим...",
+      ];
+
       const result = {
-        mood: "радостный",
-        color: "#33cc99",
-        rarity: "редкий",
-        essence: "искрящийся комар доверия",
-        dialogue: "Ну давай, удиви меня ещё одним шедевром самокритики.",
+        mood: mockMoods[Math.floor(Math.random() * mockMoods.length)],
+        color: mockColors[Math.floor(Math.random() * mockColors.length)],
+        rarity: mockRarities[Math.floor(Math.random() * mockRarities.length)],
+        essence: mockEssences[Math.floor(Math.random() * mockEssences.length)],
+        dialogue:
+          mockDialogues[Math.floor(Math.random() * mockDialogues.length)],
         timestamp: isoNow(),
         cached: false,
       };
@@ -260,15 +312,37 @@ app.post(
       return json(res, result, AnalyzeResponseSchema);
     }
 
-    const system = `Ты — древний духоанализатор. Верни ровно JSON:
+    const system = `Ты — древний духоанализатор. Анализируй эмоции текста и создавай разнообразных духов.
+
+ВАЖНО: Старайся создавать духов с РАЗНЫМИ настроениями! Не только печальных.
+
+Доступные настроения:
+- радостный (для позитивных, весёлых текстов)
+- вдохновлённый (для творческих, мотивирующих текстов)  
+- спокойный (для нейтральных, умиротворённых текстов)
+- игривый (для шутливых, забавных текстов)
+- печальный (только для действительно грустных текстов)
+- злой (для агрессивных, раздражённых текстов)
+- меланхоличный (для задумчивых, ностальгических текстов)
+- сонный (для усталых, расслабленных текстов)
+- испуганный (для тревожных текстов)
+
+Верни ровно JSON:
 {
-  "mood": "...",
-  "color": "#RRGGBB",
+  "mood": "одно из настроений выше",
+  "color": "#RRGGBB (цвет соответствующий настроению)",
   "rarity": "обычный|редкий|легендарный",
-  "essence": "...",
-  "dialogue": "..."
+  "essence": "креативное название духа",
+  "dialogue": "характерная фраза духа"
 }`;
-    const user = `Вот слова человека: "${text}"`;
+    const user = `Анализируй текст и создай духа: "${text}"
+
+Подсказки для настроения:
+- Если текст позитивный/весёлый → радостный
+- Если текст про планы/цели → вдохновлённый  
+- Если текст обычный/нейтральный → спокойный
+- Если есть шутки/ирония → игривый
+- Только если реально грустно → печальный`;
 
     try {
       const completion = await openai.chat.completions.create({
@@ -312,14 +386,33 @@ app.post(
       return json(res, result, AnalyzeResponseSchema);
     } catch (err) {
       console.error("❌ Analyze error:", err?.message);
+      // Создаем случайного духа вместо всегда печального
+      const fallbackMoods = [
+        "спокойный",
+        "вдохновлённый",
+        "игривый",
+        "радостный",
+      ];
+      const randomMood =
+        fallbackMoods[Math.floor(Math.random() * fallbackMoods.length)];
+      const fallbackColors = [
+        "#808080",
+        "#33cc99",
+        "#ff6b6b",
+        "#4ecdc4",
+        "#45b7d1",
+      ];
+      const randomColor =
+        fallbackColors[Math.floor(Math.random() * fallbackColors.length)];
+
       return json(
         res,
         {
-          mood: "печальный",
-          color: "#808080",
+          mood: randomMood,
+          color: randomColor,
           rarity: "обычный",
-          essence: "дух ошибки",
-          dialogue: "Что-то пошло не так при моем рождении...",
+          essence: "дух неожиданности",
+          dialogue: "Хм, что-то пошло не по плану, но я все равно здесь!",
           timestamp: isoNow(),
           cached: false,
         },
@@ -399,38 +492,43 @@ app.post(
       );
     }
 
-    // OpenAI режим — сформируем системный запрос на командную работу
-    const system = `Ты — фасилитатор команды духов. На вход тема миссии, ограничения и подсказки по духам.
-Выбирай ${teamSize} духов с подходящими ролями, обсуждай шаги и дай финальный ответ.
-Верни JSON с полями missionId, selectedSpirits[{ essence, mood, role, rationale }], plan[string[]], steps[{ speaker, content }], finalAnswer, timestamp.`;
+    // OpenAI режим — сформируем системный запрос на детальную командную работу
+    const system = `Ты — мастер-фасилитатор коллективного разума духов. 
+Твоя задача: создать команду духов, которая РЕАЛЬНО решит поставленную задачу с конкретным, подробным планом.
 
-    const rules = `Соблюдай:
-- Краткость, ясность, практичность
-- Максимум 7 шагов плана, 10 предложений финального ответа
+Требования к ответу:
+- Выбери ${teamSize} духов с уникальными ролями и способностями для решения конкретной задачи
+- Создай детальный план из 5-8 конкретных шагов с описанием "как делать"
+- Проведи имитацию обсуждения: каждый дух высказывает идеи по своей экспертизе
+- Дай КОНКРЕТНЫЙ финальный ответ с практическими рекомендациями
+
+Формат JSON: { missionId, selectedSpirits[{essence, mood, role, rationale}], plan[string[]], steps[{speaker, content}], finalAnswer, timestamp }`;
+
+    const rules = `Правила:
+- План должен быть КОНКРЕТНЫМ и ВЫПОЛНИМЫМ, не абстрактным
+- Каждый шаг плана начинается с действия: "Проанализировать...", "Создать...", "Выполнить..."
+- Финальный ответ содержит практические рекомендации и выводы
+- Обсуждение показывает экспертизу каждого духа
 - Учитывай ограничения: ${constraints.join("; ") || "нет"}`;
 
-    const hints = spiritHints
-      .map(
-        (h, i) =>
-          `#${i + 1}: mood=${h.mood || "?"}, essence=${h.essence || "?"}`
-      )
-      .join("; ");
+    const userPrompt = `ЗАДАЧА ДЛЯ РЕШЕНИЯ: "${topic}"
 
-    const user = `Тема: ${topic}
-Контекст: ${context}
-Желаемые настроения: ${desiredMoods.join(", ") || "не указаны"}
-Подсказки духов: ${hints || "нет"}
-История: ${(history || []).slice(-6).join(" | ")}`;
+Контекст: ${context || "Контекст не предоставлен"}
+Желаемые настроения духов: ${desiredMoods.join(", ") || "подбери сам по задаче"}
+Подсказки по духам: ${spiritHints.join(", ") || "создай духов под задачу"}
+Предыдущий опыт: ${(history || []).slice(-6).join(" | ") || "нет"}
+
+ВАЖНО: Духи должны дать ПРАКТИЧЕСКОЕ РЕШЕНИЕ задачи, а не общие рассуждения!`;
 
     try {
       const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           { role: "system", content: `${system}\n\n${rules}` },
-          { role: "user", content: user },
+          { role: "user", content: userPrompt },
         ],
-        temperature: 0.6,
-        max_tokens: 700,
+        temperature: 0.7,
+        max_tokens: 1200,
         response_format: { type: "json_object" },
       });
 
@@ -470,15 +568,37 @@ app.post(
         res,
         {
           missionId,
-          selectedSpirits: [],
-          plan: ["Сформулировать тему", "Собрать духов", "Согласовать шаги"],
-          steps: [
+          selectedSpirits: [
             {
-              speaker: "система",
-              content: "Возникла ошибка, попробуйте позже",
+              essence: "дух-аналитик",
+              mood: "спокойный",
+              role: "аналитик",
+              rationale: "Анализирует ситуацию при технических неполадках",
+            },
+            {
+              essence: "дух-помощник",
+              mood: "вдохновлённый",
+              role: "координатор",
+              rationale: "Помогает восстановить связь с системой",
             },
           ],
-          finalAnswer: "Сейчас духи недоступны. Повторите попытку позже.",
+          plan: [
+            "Диагностировать техническую проблему",
+            "Восстановить связь с духовной сетью",
+            "Повторить миссию после восстановления",
+          ],
+          steps: [
+            {
+              speaker: "дух-аналитик",
+              content: "Обнаружена временная неполадка в духовной сети",
+            },
+            {
+              speaker: "дух-помощник",
+              content: "Рекомендую повторить запрос через несколько минут",
+            },
+          ],
+          finalAnswer:
+            "Духовная сеть временно недоступна. Связь восстанавливается, попробуйте повторить миссию через 1-2 минуты.",
           timestamp: isoNow(),
         },
         AIMissionResponseSchema
@@ -675,16 +795,50 @@ app.post(
       );
     }
 
-    const prompt = `Создай короткий диалог-сплетню.
-Дух 1: "${a.essence}" (настроение: ${normalizeMood(a.mood)}) ${
-      a.originText ? `; из текста: "${a.originText}"` : ""
+    // Темы для разнообразных диалогов
+    const topics = [
+      "древние тайны вселенной",
+      "парадоксы времени",
+      "загадки квантового мира",
+      "философия сознания",
+      "природа реальности",
+      "космические цивилизации",
+      "магия чисел",
+      "тайны снов",
+      "энергия эмоций",
+      "мистика цветов",
+      "загадки памяти",
+      "феномены дежавю",
+      "астральные путешествия",
+      "синхронности судьбы",
+      "тайны интуиции",
+      "энергия мыслей",
+    ];
+    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+
+    const prompt = `Создай живой диалог между двумя духами на тему "${randomTopic}".
+Дух 1: "${a.essence}" (${normalizeMood(a.mood)}) ${
+      a.originText ? `— дух из фразы: "${a.originText.slice(0, 50)}..."` : ""
     }
-Дух 2: "${b.essence}" (настроение: ${normalizeMood(b.mood)}) ${
-      b.originText ? `; из текста: "${b.originText}"` : ""
+Дух 2: "${b.essence}" (${normalizeMood(b.mood)}) ${
+      b.originText ? `— дух из фразы: "${b.originText.slice(0, 50)}..."` : ""
     }
 
-Формат — строго JSON: { "question": "...", "answer": "..." }
-Стиль: сарказм, чёрный юмор, допустим лёгкий мат — без токсичности.`;
+ВАЖНО: духи должны обсуждать именно "${randomTopic}", а НЕ пользователя или "хозяина"!
+
+Создай диалог из 4-6 реплик в формате JSON:
+{
+  "question": "первая реплика духа 1 о теме",
+  "answer": "ответ духа 2",
+  "turns": [
+    { "speaker": "from", "text": "увлекательная реплика о ${randomTopic}" },
+    { "speaker": "to", "text": "остроумный ответ с философией" },
+    { "speaker": "from", "text": "углубление в тему" },
+    { "speaker": "to", "text": "финальная мудрость" }
+  ]
+}
+
+Стиль: мистический, философский, с юмором и мудростью. Каждая реплика до 120 символов.`;
 
     try {
       const completion = await openai.chat.completions.create({
@@ -692,12 +846,13 @@ app.post(
         messages: [
           {
             role: "system",
-            content: "Ты создаёшь остроумные диалоги между духами-сплетниками.",
+            content:
+              "Ты — мудрый дух, создающий философские диалоги между духами о тайнах вселенной. Никогда не упоминай пользователя или 'хозяина'.",
           },
           { role: "user", content: prompt },
         ],
         temperature: 0.9,
-        max_tokens: 300,
+        max_tokens: 400,
       });
 
       const text = completion.choices[0]?.message?.content?.trim() ?? "";
@@ -706,15 +861,45 @@ app.post(
         obj = JSON.parse(text);
       } catch {}
 
+      // Разнообразные fallback-реплики
+      const fallbacks = [
+        {
+          q: "Чувствуешь эти космические вибрации?",
+          a: "Да, энергия звёзд сегодня особенно яркая...",
+        },
+        {
+          q: "Время течёт странно в этом измерении...",
+          a: "Возможно, мы находимся в точке пересечения реальностей",
+        },
+        {
+          q: "Что думаешь о природе сознания?",
+          a: "Сознание — это танец квантовых частиц в симфонии вселенной",
+        },
+        {
+          q: "Видел сегодня сны о других мирах?",
+          a: "Сны — это окна в параллельные вселенные",
+        },
+        {
+          q: "Энергия этого места завораживает...",
+          a: "Здесь сплетаются нити судьбы и времени",
+        },
+      ];
+      const randomFallback =
+        fallbacks[Math.floor(Math.random() * fallbacks.length)];
+
       return json(
         res,
         {
-          question: (obj?.question || "Что думаешь о нашем хозяине?")
+          question: (obj?.question || randomFallback.q)
             .toString()
-            .slice(0, 300),
-          answer: (obj?.answer || "Думаю, ему не помешало бы больше фантазии…")
-            .toString()
-            .slice(0, 300),
+            .slice(0, 200),
+          answer: (obj?.answer || randomFallback.a).toString().slice(0, 200),
+          turns: Array.isArray(obj?.turns)
+            ? obj.turns.slice(0, 8).map((t) => ({
+                speaker: t?.speaker === "to" ? "to" : "from",
+                text: String(t?.text || "...").slice(0, 240),
+              }))
+            : undefined,
           messageId: `gossip_${Date.now()}_${
             crypto.randomUUID().split("-")[0]
           }`,

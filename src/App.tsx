@@ -5,7 +5,8 @@ import { AIMissionModal } from "./components/UI/AIMissionModal";
 import { AnimatedFrame } from "./components/UI/AnimatedFrame";
 import { AppLoader } from "./components/UI/AppLoader";
 import { DiaryPage } from "./components/UI/DiaryPage";
-import { GossipBar } from "./components/UI/GossipBar";
+// Временно закомментировано
+// import { GossipBar } from "./components/UI/GossipBar";
 import { SpiritDialogueModal } from "./components/UI/SpiritDialogueModal";
 import { SpiritVault } from "./components/UI/SpiritVault";
 import { useInitAssets } from "./hooks/useInitAssets";
@@ -173,7 +174,9 @@ function App() {
           <SpiritAtelier />
         </Suspense>
 
+        {/* Временно закомментировано - не нравится идея
         {!showStorage && <GossipBar />}
+        */}
 
         {/* Индикатор выбранного духа для чата */}
         {selectedSpiritForChat && !showStorage && (
